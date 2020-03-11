@@ -45,19 +45,28 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var themeOfContext = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(
-        title: Text('holis'),
-      ),
       body: Container(
-        child: RaisedButton(
-          onPressed: () {},
-          child: Text('Holis'),
+        color: themeOfContext.accentColor,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text('el tinder para goblins'),
+              Text(
+                'iParty',
+                style: themeOfContext.textTheme.title,
+              ),
+              Image(
+                image: AssetImage(
+                  'assets/images/goblin_dice.png',
+                ),
+                width: double.infinity,
+              )
+            ],
+          ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: Text('+'),
       ),
     );
   }
