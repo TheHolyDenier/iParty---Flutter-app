@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import './screens/splash-screen.dart';
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final Map<int, Color> primarySwatchMap = {
+    final Map<int, Color> _primarySwatchMap = {
       50: Color.fromRGBO(146, 197, 224, .1),
       100: Color.fromRGBO(146, 197, 224, .2),
       200: Color.fromRGBO(146, 197, 224, .3),
@@ -21,11 +23,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'iParty',
       theme: ThemeData(
-        primarySwatch: MaterialColor(0xFF92c5e0, primarySwatchMap),
+        primarySwatch: MaterialColor(0xFF92c5e0, _primarySwatchMap),
         accentColor: Color.fromRGBO(255, 182, 161, 1),
-        buttonTheme: ButtonThemeData(
-          buttonColor: Color.fromRGBO(255, 182, 161, 1),
-        ),
         errorColor: Color.fromRGBO(237, 74, 56, 1),
         fontFamily: 'OpenSans',
         textTheme: TextTheme(
@@ -36,38 +35,15 @@ class MyApp extends StatelessWidget {
               fontFamily: 'PTSansNarrow'),
           body1: TextStyle(fontSize: 14.0),
         ),
-      ),
-      home: MyHomePage(),
-    );
-  }
-}
-
-class MyHomePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    var themeOfContext = Theme.of(context);
-    return Scaffold(
-      body: Container(
-        color: themeOfContext.accentColor,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text('el tinder para goblins'),
-              Text(
-                'iParty',
-                style: themeOfContext.textTheme.title,
-              ),
-              Image(
-                image: AssetImage(
-                  'assets/images/goblin_dice.png',
-                ),
-                width: double.infinity,
-              )
-            ],
-          ),
+        buttonTheme: ButtonThemeData(
+          buttonColor: Color.fromRGBO(255, 182, 161, 1),
         ),
       ),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => SplashPage(),
+        SplashPage.routeName: (context) => SplashPage(),
+      },
     );
   }
 }
