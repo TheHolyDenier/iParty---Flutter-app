@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import './screens/splash-screen.dart';
+import 'screens/main-screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -41,7 +42,7 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => SplashPage(),
+        '/': (context) => MainScreen(),
         SplashPage.routeName: (context) => SplashPage(),
       },
     );

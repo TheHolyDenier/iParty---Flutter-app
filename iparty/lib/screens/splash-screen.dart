@@ -14,10 +14,7 @@ class SplashPage extends StatelessWidget {
         slides: _genSlides(themeOfContext),
         renderNextBtn: Icon(Icons.arrow_forward),
         renderPrevBtn: Icon(Icons.arrow_back),
-        renderDoneBtn: Text(
-          'TERMINAR',
-          maxLines: 1,
-        ),
+        renderDoneBtn: Text('HECHO'),
         onDonePress: () => Navigator.of(context).pop(),
         renderSkipBtn: Text('SALTAR'),
         onSkipPress: () => Navigator.of(context).pop(),
@@ -25,11 +22,10 @@ class SplashPage extends StatelessWidget {
     );
   }
 
-  List<Slide> _genSlides(ThemeData themeOfContext) {
+   List<Slide> _genSlides(ThemeData themeOfContext) {
     return [
       Slide(
-        widgetTitle: Container(
-          child: Center(
+        widgetTitle: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -40,21 +36,14 @@ class SplashPage extends StatelessWidget {
                 ),
               ],
             ),
-          ),
         ),
         description: '¡Crea partidas, busca amigos, haz un plan!',
         styleDescription: themeOfContext.textTheme.body1,
-        centerWidget: Image(
-          image: AssetImage(
-            'assets/images/goblin_dice.png',
-          ),
-          width: double.infinity,
-        ),
+        pathImage: 'assets/images/goblin_dice.png',
         backgroundColor: themeOfContext.accentColor,
       ),
       Slide(
-        widgetTitle: Container(
-          child: Center(
+        widgetTitle: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -63,42 +52,30 @@ class SplashPage extends StatelessWidget {
                   style: themeOfContext.textTheme.title,
                 ),
               ],
-            ),
           ),
         ),
         description: '¡Elige juego, fecha y sitio!',
         styleDescription: themeOfContext.textTheme.body1,
-        centerWidget: Image(
-          image: AssetImage(
-            'assets/images/goblin_archer.png',
-          ),
-          width: double.infinity,
-        ),
+        pathImage: 'assets/images/goblin_archer.png',
         backgroundColor: Color.fromRGBO(255, 212, 161, 1),
       ),
       Slide(
-        widgetTitle: Container(
-          child: Center(
+        widgetTitle: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Text(
-                  '¡O busca mesas cerca de ti!',
+                  '¡O busca mesas cerca!',
                   style: themeOfContext.textTheme.title,
+                  textAlign: TextAlign.center,
                 ),
               ],
-            ),
           ),
         ),
         description:
-            '¡También puedes apuntarte a planes de otros usuarios! Utiliza nuestros filtros para encontrar la mejor opción para ti :) ',
+            'No te olvides de utilizar nuestros filtros para encontrar la mejor opción para ti :) ',
         styleDescription: themeOfContext.textTheme.body1,
-        centerWidget: Image(
-          image: AssetImage(
-            'assets/images/goblin_sword.png',
-          ),
-          width: double.infinity,
-        ),
+        pathImage: 'assets/images/goblin_sword.png',
         backgroundColor: themeOfContext.primaryColor,
       ),
     ];
