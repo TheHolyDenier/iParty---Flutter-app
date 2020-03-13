@@ -8,7 +8,8 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _checkLaunch(context);
-    return Scaffold(appBar: AppBar(title: Text('Mesas disponibles'),),body: Container(),);
+    return Scaffold(appBar: AppBar(title: Text('Mesas disponibles'),),body: Container(
+    ),);
   }
 
   void _checkLaunch(BuildContext context) async {
@@ -17,5 +18,6 @@ class MainScreen extends StatelessWidget {
       Navigator.of(context).pushNamed(SplashPage.routeName);
       await prefs.setInt('firstLaunch', 1);
     } 
+
   }
 }

@@ -57,7 +57,7 @@ class SplashPage extends StatelessWidget {
         description: '¡Elige juego, fecha y sitio!',
         styleDescription: themeOfContext.textTheme.body1,
         pathImage: 'assets/images/goblin_archer.png',
-        backgroundColor: Color.fromRGBO(255, 212, 161, 1),
+        backgroundColor: themeOfContext.hintColor,
       ),
       Slide(
         widgetTitle: Center(

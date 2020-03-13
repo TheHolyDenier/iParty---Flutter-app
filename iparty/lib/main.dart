@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:iparty/screens/login-screen.dart';
 
 import './screens/splash-screen.dart';
-import 'screens/main-screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -21,11 +22,18 @@ class MyApp extends StatelessWidget {
       900: Color.fromRGBO(146, 197, 224, 1),
     };
 
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+
+
     return MaterialApp(
       title: 'iParty',
       theme: ThemeData(
         primarySwatch: MaterialColor(0xFF92c5e0, _primarySwatchMap),
         accentColor: Color.fromRGBO(255, 182, 161, 1),
+        hintColor:Color.fromRGBO(255, 212, 161, 1),
         errorColor: Color.fromRGBO(237, 74, 56, 1),
         fontFamily: 'OpenSans',
         textTheme: TextTheme(
@@ -42,7 +50,7 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => MainScreen(),
+        '/': (context) => AccessScreen(),
         SplashPage.routeName: (context) => SplashPage(),
       },
     );
