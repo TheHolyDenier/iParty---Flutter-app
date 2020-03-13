@@ -22,18 +22,17 @@ class MyApp extends StatelessWidget {
       900: Color.fromRGBO(146, 197, 224, 1),
     };
 
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
-      ]);
-
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
 
     return MaterialApp(
       title: 'iParty',
       theme: ThemeData(
         primarySwatch: MaterialColor(0xFF92c5e0, _primarySwatchMap),
         accentColor: Color.fromRGBO(255, 182, 161, 1),
-        hintColor:Color.fromRGBO(255, 212, 161, 1),
+        hintColor: Color.fromRGBO(255, 212, 161, 1),
         errorColor: Color.fromRGBO(237, 74, 56, 1),
         fontFamily: 'OpenSans',
         textTheme: TextTheme(
@@ -46,6 +45,9 @@ class MyApp extends StatelessWidget {
         ),
         buttonTheme: ButtonThemeData(
           buttonColor: Color.fromRGBO(255, 182, 161, 1),
+        ),
+        bottomSheetTheme: BottomSheetThemeData(
+          backgroundColor: Colors.transparent,
         ),
       ),
       initialRoute: '/',
