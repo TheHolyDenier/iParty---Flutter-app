@@ -12,6 +12,7 @@ class AccessScreen extends StatefulWidget {
 class _AccessScreenState extends State<AccessScreen> {
   ThemeData _themeOf;
   bool _obscureText = true;
+  String _email, _password;
 
   @override
   Widget build(BuildContext context) {
@@ -64,55 +65,80 @@ class _AccessScreenState extends State<AccessScreen> {
           widgets: StatefulBuilder(
               builder: (BuildContext context, StateSetter setModalState) {
             return Column(children: <Widget>[
-              TextFormField(
-                decoration: InputDecoration(
-                  hintText: 'correo electrónico',
-                  hintStyle: TextStyle(fontWeight: FontWeight.bold),
-                  icon: Icon(
-                    Icons.email,
-                    color: _themeOf.accentColor,
-                  ),
-                ),
-              ),
-              Stack(
-                alignment: Alignment.centerRight,
-                children: <Widget>[
-                  TextFormField(
-                    decoration: InputDecoration(
-                      hintText: 'contraseña',
-                      hintStyle: TextStyle(fontWeight: FontWeight.bold),
-                      contentPadding: const EdgeInsets.fromLTRB(
-                          6, 6, 48, 6), // 48 -> icon width
-                      icon: Icon(
-                        Icons.lock,
-                        color: _themeOf.accentColor,
-                      ),
-                    ),
-                    obscureText: _obscureText,
-                  ),
-                  Positioned(
-                    right: 0,
-                    child: IconButton(
-                      color: _themeOf.accentColor,
-                      onPressed: () {
-                        setModalState(
-                          () {
-                            _obscureText = !_obscureText;
-                            print(_obscureText.toString());
-                          },
-                        );
-                      },
-                      icon: _obscureText
-                          ? Icon(Icons.enhanced_encryption)
-                          : Icon(Icons.no_encryption),
-                    ),
-                  ),
-                ],
-              ),
+              emailWidget(),
+              passwordWidget(setModalState),
             ]);
           }),
         ),
       );
+
+  TextFormField emailWidget() {
+    return TextFormField(
+      decoration: InputDecoration(
+        hintText: 'correo electrónico',
+        hintStyle: TextStyle(fontWeight: FontWeight.bold),
+        icon: Icon(
+          Icons.email,
+          color: _themeOf.accentColor,
+        ),
+      ),
+      maxLines: 1,
+      keyboardType: TextInputType.emailAddress,
+      autofocus: false,
+      validator: (value) =>
+          value.isEmpty ? 'Es necesario escribir un e-mail' : null,
+      onSaved: (value) => _email = value.trim(),
+    );
+  }
+
+  Stack passwordWidget(StateSetter setModalState) {
+    return Stack(
+      alignment: Alignment.centerRight,
+      children: <Widget>[
+        TextFormField(
+          decoration: InputDecoration(
+            hintText: 'contraseña',
+            hintStyle: TextStyle(fontWeight: FontWeight.bold),
+            contentPadding:
+                const EdgeInsets.fromLTRB(6, 6, 48, 6), // 48 -> ancho del icono
+            icon: Icon(
+              Icons.lock,
+              color: _themeOf.accentColor,
+            ),
+          ),
+          maxLines: 1,
+          autofocus: false,
+          obscureText: _obscureText, //La contraseña se muestra oculta
+          validator: (value) {
+            var error;
+            if (value.isEmpty)
+              error = 'Es necesario escribir un e-mail';
+            else if (value.trim().length < 6)
+              error = 'La contraseña debe de tener al menos seis caracteres';
+            return error;
+          },
+          onSaved: (value) => _password = value.trim(),
+        ),
+        Positioned(
+          right: 0,
+          child: IconButton(
+            color: _themeOf.accentColor,
+            onPressed: () {
+              setModalState(
+                () {
+                  _obscureText = !_obscureText;
+                  print(_obscureText.toString());
+                },
+              );
+            },
+            icon: _obscureText
+                ? Icon(Icons.enhanced_encryption)
+                : Icon(Icons.no_encryption),
+          ),
+        ),
+      ],
+    );
+  }
 
 // Genera el logo
   Widget _genLogo() {
