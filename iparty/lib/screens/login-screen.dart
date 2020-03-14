@@ -4,15 +4,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import './splash-screen.dart';
 
-class AccessScreen extends StatefulWidget {
+class AuthScreen extends StatefulWidget {
+  static final routeName = '/auth-screen';
   @override
-  _AccessScreenState createState() => _AccessScreenState();
+  _AuthScreenState createState() => _AuthScreenState();
 }
 
-class _AccessScreenState extends State<AccessScreen> {
+class _AuthScreenState extends State<AuthScreen> {
+
   ThemeData _themeOf;
   bool _obscureText = true;
   String _email, _password;
+
 
   @override
   Widget build(BuildContext context) {

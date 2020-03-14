@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:iparty/screens/login-screen.dart';
+import 'package:iparty/screens/main-screen.dart';
+import 'package:iparty/screens/root-screen.dart';
+import 'package:iparty/services/auth.dart';
 
 import './screens/splash-screen.dart';
 
@@ -52,8 +55,10 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => AccessScreen(),
+        '/': (context) => RootScreen(auth: new Auth()),
         SplashPage.routeName: (context) => SplashPage(),
+        AuthScreen.routeName: (context) => AuthScreen(),
+        MainScreen.routeName: (context) => MainScreen(),
       },
     );
   }

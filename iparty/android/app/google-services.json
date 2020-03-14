@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "124588912319",
+    "firebase_url": "https://iparty-goblins.firebaseio.com",
+    "project_id": "iparty-goblins",
+    "storage_bucket": "iparty-goblins.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:124588912319:android:ffaa0148dca13a5920200a",
+        "android_client_info": {
+          "package_name": "com.example.iparty"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "124588912319-86op6hpv281agbrmnfsgvhernpqmo7ce.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCq8On3NYOurlub-WM5dIg5hRCyFV5PYew"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "124588912319-86op6hpv281agbrmnfsgvhernpqmo7ce.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
