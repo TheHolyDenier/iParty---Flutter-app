@@ -1,35 +1,30 @@
 import 'package:flutter/material.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
+import './splash-screen.dart';
+
 class AccessScreen extends StatefulWidget {
   @override
   _AccessScreenState createState() => _AccessScreenState();
 }
 
 class _AccessScreenState extends State<AccessScreen> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  // TextEditingController _emailController = new TextEditingController();
-  // TextEditingController _passwordController = new TextEditingController();
-  // TextEditingController _nameController = new TextEditingController();
-  // String _email;
-  // String _password;
-  // String _displayName;
-  // bool _obsecure = false;
+  ThemeData _themeOf;
 
   @override
   Widget build(BuildContext context) {
+    _checkLaunch(context);
+    _themeOf = Theme.of(context);
     return Scaffold(
-        key: _scaffoldKey,
-        backgroundColor: Theme.of(context).primaryColor,
-        body: Column(
-          children: <Widget>[
-            logo(),
-            _buildRaisedButton(),
-            _buildOutlineButton()
-          ],
-        ));
+      backgroundColor: _themeOf.primaryColor,
+      body: Column(
+        children: <Widget>[logo(), _buildRaisedButton(), _buildOutlineButton()],
+      ),
+    );
   }
 
-  OutlineButton _buildOutlineButton() => OutlineButton(
+  Widget _buildOutlineButton() => OutlineButton(
         borderSide: BorderSide(width: 2.0),
         splashColor: Colors.white,
         highlightColor: Colors.white,
@@ -44,7 +39,7 @@ class _AccessScreenState extends State<AccessScreen> {
         onPressed: () {},
       );
 
-  RaisedButton _buildRaisedButton() => RaisedButton(
+  Widget _buildRaisedButton() => RaisedButton(
         elevation: 0.0,
         splashColor: Colors.white,
         highlightColor: Colors.white,
@@ -56,7 +51,28 @@ class _AccessScreenState extends State<AccessScreen> {
             fontSize: 20,
           ),
         ),
-        onPressed: () => _onButtonPressed(),
+        onPressed: () => _onButtonPressed(<Widget>[
+          TextFormField(
+            decoration: InputDecoration(
+              hintText: 'correo electrónico',
+              hintStyle: TextStyle(fontWeight: FontWeight.bold),
+              icon: Icon(
+                Icons.email,
+                color: _themeOf.accentColor,
+              ),
+            ),
+          ),
+          TextFormField(
+            decoration: InputDecoration(
+              hintText: 'contraseña',
+              hintStyle: TextStyle(fontWeight: FontWeight.bold),
+              icon: Icon(
+                Icons.lock,
+                color: _themeOf.accentColor,
+              ),
+            ),
+          ),
+        ], 'inicia sesión', () {}),
       );
 
   Widget logo() {
@@ -135,15 +151,16 @@ class _AccessScreenState extends State<AccessScreen> {
     ));
   }
 
-  void _onButtonPressed() {
-    var themeOf = Theme.of(context);
+  void _onButtonPressed(
+      List<Widget> widgets, String buttonText, Function buttonFunction) {
     showModalBottomSheet(
       isScrollControlled: true,
       context: context,
       builder: (context) {
         return SingleChildScrollView(
           child: Container(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
             child: ClipRRect(
               borderRadius: BorderRadius.only(
                 // topLeft: Radius.circular(20.0),
@@ -158,45 +175,26 @@ class _AccessScreenState extends State<AccessScreen> {
                       child: FlatButton(
                         child: Icon(
                           Icons.close,
-                          color: themeOf.accentColor,
+                          color: _themeOf.accentColor,
                         ),
                         onPressed: () => Navigator.of(context).pop(),
                       ),
                     ),
                     Padding(
                       child: Column(
-                        children: <Widget>[
-                          TextFormField(
-                            decoration: InputDecoration(
-                              hintText: 'correo electrónico',
-                              hintStyle: TextStyle(fontWeight: FontWeight.bold),
-                              icon: Icon(
-                                Icons.email,
-                                color: themeOf.accentColor,
-                              ),
-                            ),
-                          ),
-                          TextFormField(
-                            decoration: InputDecoration(
-                              hintText: 'contraseña',
-                              hintStyle: TextStyle(fontWeight: FontWeight.bold),
-                              icon: Icon(
-                                Icons.lock,
-                                color: themeOf.accentColor,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(top: 20.0),
-                            child: RaisedButton(
-                              onPressed: () {},
-                              child: Text('iniciar sesión'),
-                            ),
-                          ),
-                        ],
+                        children: widgets,
                       ),
-                      padding: EdgeInsets.all(10.0),
+                      padding: EdgeInsets.only(
+                          left: 10.0, right: 10.0, bottom: 10.0),
                     ),
+                    RaisedButton(
+                      onPressed: buttonFunction,
+                      child: Text(buttonText),
+                    ),
+                    // Padding(
+                    //   padding: EdgeInsets.only(top: 20.0),
+                    //   child:
+                    // ),
                   ],
                 ),
               ),
@@ -205,5 +203,13 @@ class _AccessScreenState extends State<AccessScreen> {
         );
       },
     );
+  }
+
+  void _checkLaunch(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getInt('firstLaunch') == null) {
+      Navigator.of(context).pushNamed(SplashPage.routeName);
+      await prefs.setInt('firstLaunch', 1);
+    }
   }
 }
