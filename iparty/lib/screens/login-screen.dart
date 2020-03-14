@@ -31,18 +31,18 @@ class _AccessScreenState extends State<AccessScreen> {
 
 // Genera el botón de registro
   Widget _buildRegisterButton() => OutlineButton(
-        borderSide: BorderSide(width: 2.0),
-        splashColor: Colors.white,
-        highlightColor: Colors.white,
-        highlightedBorderColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: new BorderRadius.circular(30.0),
-        ),
-        child: Text(
-          "regístrate",
-          style: TextStyle(fontSize: 20),
-        ),
-        onPressed: () => _onButtonPressed(<Widget>[], 'regístrate', () {}),
+      borderSide: BorderSide(width: 2.0),
+      splashColor: Colors.white,
+      highlightColor: Colors.white,
+      highlightedBorderColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: new BorderRadius.circular(30.0),
+      ),
+      child: Text(
+        "regístrate",
+        style: TextStyle(fontSize: 20),
+      ),
+      onPressed: () {} // => _onButtonPressed(<Widget>[], 'regístrate', () {}),
       );
 
 // Genera el botón de inicio de sesión
@@ -58,51 +58,60 @@ class _AccessScreenState extends State<AccessScreen> {
             fontSize: 20,
           ),
         ),
-        onPressed: () => _onButtonPressed(<Widget>[
-          TextFormField(
-            decoration: InputDecoration(
-              hintText: 'correo electrónico',
-              hintStyle: TextStyle(fontWeight: FontWeight.bold),
-              icon: Icon(
-                Icons.email,
-                color: _themeOf.accentColor,
-              ),
-            ),
-          ),
-          Stack(
-            alignment: Alignment.centerRight,
-            children: <Widget>[
+        onPressed: () => _onButtonPressed(
+          buttonText: 'inicia sesión',
+          buttonFunction: () {},
+          widgets: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setModalState) {
+            return Column(children: <Widget>[
               TextFormField(
                 decoration: InputDecoration(
-                  hintText: 'contraseña',
+                  hintText: 'correo electrónico',
                   hintStyle: TextStyle(fontWeight: FontWeight.bold),
-                  contentPadding: const EdgeInsets.fromLTRB(
-                      6, 6, 48, 6), // 48 -> icon width
                   icon: Icon(
-                    Icons.lock,
+                    Icons.email,
                     color: _themeOf.accentColor,
                   ),
                 ),
-                obscureText: _obscureText,
               ),
-              Positioned(
-                right: 0,
-                child: IconButton(
-                  color: _themeOf.accentColor,
-                  onPressed: () {
-                    setState(
-                      () {
-                        _obscureText = !_obscureText;
-                        print(_obscureText.toString());
+              Stack(
+                alignment: Alignment.centerRight,
+                children: <Widget>[
+                  TextFormField(
+                    decoration: InputDecoration(
+                      hintText: 'contraseña',
+                      hintStyle: TextStyle(fontWeight: FontWeight.bold),
+                      contentPadding: const EdgeInsets.fromLTRB(
+                          6, 6, 48, 6), // 48 -> icon width
+                      icon: Icon(
+                        Icons.lock,
+                        color: _themeOf.accentColor,
+                      ),
+                    ),
+                    obscureText: _obscureText,
+                  ),
+                  Positioned(
+                    right: 0,
+                    child: IconButton(
+                      color: _themeOf.accentColor,
+                      onPressed: () {
+                        setModalState(
+                          () {
+                            _obscureText = !_obscureText;
+                            print(_obscureText.toString());
+                          },
+                        );
                       },
-                    );
-                  },
-                  icon: _obscureText ? Icon(Icons.enhanced_encryption) : Icon(Icons.no_encryption),
-                ),
-              )
-            ],
-          ),
-        ], 'inicia sesión', () {}),
+                      icon: _obscureText
+                          ? Icon(Icons.enhanced_encryption)
+                          : Icon(Icons.no_encryption),
+                    ),
+                  ),
+                ],
+              ),
+            ]);
+          }),
+        ),
       );
 
 // Genera el logo
@@ -184,7 +193,7 @@ class _AccessScreenState extends State<AccessScreen> {
 
 // Abre el desplegable desde la parte inferior
   void _onButtonPressed(
-      List<Widget> widgets, String buttonText, Function buttonFunction) {
+      {Widget widgets, String buttonText, Function buttonFunction}) {
     showModalBottomSheet(
       isScrollControlled: true,
       context: context,
@@ -214,7 +223,7 @@ class _AccessScreenState extends State<AccessScreen> {
                     ),
                     Padding(
                       child: Column(
-                        children: widgets,
+                        children: <Widget>[widgets],
                       ),
                       padding: EdgeInsets.only(
                           left: 10.0, right: 10.0, bottom: 10.0),
