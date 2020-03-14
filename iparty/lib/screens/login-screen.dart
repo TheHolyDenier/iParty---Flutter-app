@@ -11,6 +11,7 @@ class AccessScreen extends StatefulWidget {
 
 class _AccessScreenState extends State<AccessScreen> {
   ThemeData _themeOf;
+  bool _obscureText = true;
 
   @override
   Widget build(BuildContext context) {
@@ -19,12 +20,17 @@ class _AccessScreenState extends State<AccessScreen> {
     return Scaffold(
       backgroundColor: _themeOf.primaryColor,
       body: Column(
-        children: <Widget>[logo(), _buildRaisedButton(), _buildOutlineButton()],
+        children: <Widget>[
+          _genLogo(),
+          _buildLoginButton(),
+          _buildRegisterButton()
+        ],
       ),
     );
   }
 
-  Widget _buildOutlineButton() => OutlineButton(
+// Genera el botón de registro
+  Widget _buildRegisterButton() => OutlineButton(
         borderSide: BorderSide(width: 2.0),
         splashColor: Colors.white,
         highlightColor: Colors.white,
@@ -36,10 +42,11 @@ class _AccessScreenState extends State<AccessScreen> {
           "regístrate",
           style: TextStyle(fontSize: 20),
         ),
-        onPressed: () {},
+        onPressed: () => _onButtonPressed(<Widget>[], 'regístrate', () {}),
       );
 
-  Widget _buildRaisedButton() => RaisedButton(
+// Genera el botón de inicio de sesión
+  Widget _buildLoginButton() => RaisedButton(
         elevation: 0.0,
         splashColor: Colors.white,
         highlightColor: Colors.white,
@@ -62,20 +69,44 @@ class _AccessScreenState extends State<AccessScreen> {
               ),
             ),
           ),
-          TextFormField(
-            decoration: InputDecoration(
-              hintText: 'contraseña',
-              hintStyle: TextStyle(fontWeight: FontWeight.bold),
-              icon: Icon(
-                Icons.lock,
-                color: _themeOf.accentColor,
+          Stack(
+            alignment: Alignment.centerRight,
+            children: <Widget>[
+              TextFormField(
+                decoration: InputDecoration(
+                  hintText: 'contraseña',
+                  hintStyle: TextStyle(fontWeight: FontWeight.bold),
+                  contentPadding: const EdgeInsets.fromLTRB(
+                      6, 6, 48, 6), // 48 -> icon width
+                  icon: Icon(
+                    Icons.lock,
+                    color: _themeOf.accentColor,
+                  ),
+                ),
+                obscureText: _obscureText,
               ),
-            ),
+              Positioned(
+                right: 0,
+                child: IconButton(
+                  color: _themeOf.accentColor,
+                  onPressed: () {
+                    setState(
+                      () {
+                        _obscureText = !_obscureText;
+                        print(_obscureText.toString());
+                      },
+                    );
+                  },
+                  icon: _obscureText ? Icon(Icons.enhanced_encryption) : Icon(Icons.no_encryption),
+                ),
+              )
+            ],
           ),
         ], 'inicia sesión', () {}),
       );
 
-  Widget logo() {
+// Genera el logo
+  Widget _genLogo() {
     return Center(
         child: Padding(
       padding: EdgeInsets.only(top: 120),
@@ -151,6 +182,7 @@ class _AccessScreenState extends State<AccessScreen> {
     ));
   }
 
+// Abre el desplegable desde la parte inferior
   void _onButtonPressed(
       List<Widget> widgets, String buttonText, Function buttonFunction) {
     showModalBottomSheet(
@@ -205,6 +237,7 @@ class _AccessScreenState extends State<AccessScreen> {
     );
   }
 
+// Comprueba si se trata de la primera vez que abres la aplicación
   void _checkLaunch(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (prefs.getInt('firstLaunch') == null) {
