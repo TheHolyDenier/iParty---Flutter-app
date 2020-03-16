@@ -22,6 +22,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    //Página de intro
     if (_needCheck)
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _checkLaunch(context);
@@ -76,8 +77,6 @@ class _AuthScreenState extends State<AuthScreen> {
         ),
       ),
       onPressed: () => _onButtonPressed(
-        buttonText: 'inicia sesión',
-        buttonFunction: () {},
         widgets: StatefulBuilder(
             builder: (BuildContext context, StateSetter setModalState) {
           return Form(
@@ -287,8 +286,7 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
 // Abre el desplegable desde la parte inferior
-  void _onButtonPressed(
-      {Widget widgets, String buttonText, Function buttonFunction}) {
+  void _onButtonPressed({Widget widgets}) {
     showModalBottomSheet(
       isScrollControlled: true,
       context: context,
@@ -317,16 +315,10 @@ class _AuthScreenState extends State<AuthScreen> {
                       ),
                     ),
                     Padding(
-                      child: Column(
-                        children: <Widget>[widgets],
-                      ),
+                      <Widget>[widgets],
                       padding: EdgeInsets.only(
                           left: 10.0, right: 10.0, bottom: 10.0),
                     ),
-                    // Padding(
-                    //   padding: EdgeInsets.only(top: 20.0),
-                    //   child:
-                    // ),
                   ],
                 ),
               ),

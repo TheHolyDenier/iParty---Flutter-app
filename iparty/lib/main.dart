@@ -64,28 +64,29 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: FutureBuilder<FirebaseUser>(
-        future: Provider.of<AuthService>(context).getUser(),
+        future: Provider.of<AuthService>(context).getUser(), //Comprueba si existe un usuario conectado
         builder: (context, AsyncSnapshot<FirebaseUser> snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            // log error to console                                            ⇐ NEW
+          if (snapshot.connectionState == ConnectionState.done) { 
             if (snapshot.error != null) {
               print("error");
-              return Text(snapshot.error.toString());
+              return Text('Ha habido un error: ${snapshot.error}');
             }
-            // redirect to the proper page, pass the user into the
-            // `HomePage` so we can display the user email in welcome msg     ⇐ NEW
             return snapshot.hasData
                 ? HomeScreen(/*snapshot.data*/)
                 : AuthScreen();
           } else {
-            // show loading indicator                                         ⇐ NEW
-            return CircularProgressIndicator();
+            return Scaffold(
+              body: Center(
+                child: Container(
+                  child: CircularProgressIndicator(),
+                  alignment: Alignment(0.0, 0.0),
+                ),
+              ),
+            );
           }
         },
       ),
-      // initialRoute: '/',
       routes: {
-        // '/': (context) => AuthScreen(),
         AuthScreen.routeName: (context) => AuthScreen(),
         SplashPage.routeName: (context) => SplashPage(),
         HomeScreen.routeName: (context) => HomeScreen(),
