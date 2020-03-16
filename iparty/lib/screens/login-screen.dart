@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import './main-screen.dart';
 import './splash-screen.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -11,23 +13,42 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  FirebaseUser user;
   ThemeData _themeOf;
-  bool _obscureText = true;
+  bool _obscureText = true, _autoValidate = false, _needCheck = true;
   String _email, _password;
 
-
+  
   @override
   Widget build(BuildContext context) {
-    _checkLaunch(context);
+    if (_needCheck) WidgetsBinding.instance.addPostFrameCallback((_) {
+      // var user = Provider.of<FirebaseUser>(context, listen: false);
+      // if (user != null) {
+      //   Navigator.of(context).pushReplacementNamed(AuthScreen.routeName);
+      // } else {
+      //   print('No user');
+      //   _checkLaunch(context);
+      // }
+      _needCheck = false; 
+    });
+
     _themeOf = Theme.of(context);
+
+    //Página principal
     return Scaffold(
       backgroundColor: _themeOf.primaryColor,
       body: Column(
         children: <Widget>[
           _genLogo(),
           _buildLoginButton(),
-          _buildRegisterButton()
+          _buildRegisterButton(),
+          RaisedButton(
+            onPressed: () {
+              FirebaseAuth.instance.signOut();
+            },
+            child: Text('log-out'),
+          ),
         ],
       ),
     );
@@ -50,30 +71,109 @@ class _AuthScreenState extends State<AuthScreen> {
       );
 
 // Genera el botón de inicio de sesión
-  Widget _buildLoginButton() => RaisedButton(
-        elevation: 0.0,
-        splashColor: Colors.white,
-        highlightColor: Colors.white,
-        shape: RoundedRectangleBorder(
-            borderRadius: new BorderRadius.circular(30.0)),
-        child: Text(
-          'inicia sesión',
-          style: TextStyle(
-            fontSize: 20,
-          ),
+  Widget _buildLoginButton() {
+    var failedLogging = false;
+    return RaisedButton(
+      elevation: 0.0,
+      splashColor: Colors.white,
+      highlightColor: Colors.white,
+      shape:
+          RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
+      child: Text(
+        'inicia sesión',
+        style: TextStyle(
+          fontSize: 20,
         ),
-        onPressed: () => _onButtonPressed(
-          buttonText: 'inicia sesión',
-          buttonFunction: () {},
-          widgets: StatefulBuilder(
-              builder: (BuildContext context, StateSetter setModalState) {
-            return Column(children: <Widget>[
+      ),
+      onPressed: () => _onButtonPressed(
+        buttonText: 'inicia sesión',
+        buttonFunction: () {},
+        widgets: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setModalState) {
+          return Form(
+            key: _formKey,
+            autovalidate: _autoValidate,
+            child: Column(children: <Widget>[
+              if (failedLogging)
+                Row(
+                  children: <Widget>[
+                    Icon(Icons.error, color: _themeOf.errorColor),
+                    SizedBox(width: 10.0),
+                    Text(
+                      'Datos de inicio de sesión erróneos',
+                      style: TextStyle(color: _themeOf.errorColor),
+                    ),
+                  ],
+                ),
               emailWidget(),
               passwordWidget(setModalState),
-            ]);
-          }),
-        ),
-      );
+              RaisedButton(
+                onPressed: () {
+                  final form = _formKey.currentState;
+                  if (form.validate()) {
+                    form.save();
+                    _firestoreAuth(context, setModalState, failedLogging);
+                  } else {
+                    setModalState(() => _autoValidate = true);
+                  }
+                },
+                child: Text('inicia sesión'),
+              ),
+            ]),
+          );
+        }),
+      ),
+    );
+  }
+
+  Future<Object> _firestoreAuth(BuildContext context, StateSetter setModalState, bool failedLogging) async {
+    String errorMessage;
+    try {
+      AuthResult result = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+              email: _email, password: _password);
+      //           .then((result) {
+      //   print(result.user.uid);
+        Navigator.of(context).pushReplacementNamed(MainScreen.routeName);
+      // });
+      user = result.user;
+    } catch (error) {
+      print('No user');
+      setModalState(() {
+        failedLogging = true;
+      });
+      switch (error.code) {
+        case "ERROR_INVALID_EMAIL":
+          errorMessage =
+              "Your email address appears to be malformed.";
+          break;
+        case "ERROR_WRONG_PASSWORD":
+          errorMessage = "Your password is wrong.";
+          break;
+        case "ERROR_USER_NOT_FOUND":
+          errorMessage = "User with this email doesn't exist.";
+          break;
+        case "ERROR_USER_DISABLED":
+          errorMessage =
+              "User with this email has been disabled.";
+          break;
+        case "ERROR_TOO_MANY_REQUESTS":
+          errorMessage = "Too many requests. Try again later.";
+          break;
+        case "ERROR_OPERATION_NOT_ALLOWED":
+          errorMessage =
+              "Signing in with Email and Password is not enabled.";
+          break;
+        default:
+          errorMessage = "An undefined Error happened.";
+      }
+    }
+    
+    if (errorMessage != null) {
+      return Future.error(errorMessage);
+    }
+    return user.uid;
+  }
 
   TextFormField emailWidget() {
     return TextFormField(
@@ -117,7 +217,7 @@ class _AuthScreenState extends State<AuthScreen> {
             if (value.isEmpty)
               error = 'Es necesario escribir un e-mail';
             else if (value.trim().length < 6)
-              error = 'La contraseña debe de tener al menos seis caracteres';
+              error = 'Contraseña demasiado corta';
             return error;
           },
           onSaved: (value) => _password = value.trim(),
@@ -135,8 +235,8 @@ class _AuthScreenState extends State<AuthScreen> {
               );
             },
             icon: _obscureText
-                ? Icon(Icons.enhanced_encryption)
-                : Icon(Icons.no_encryption),
+                ? Icon(Icons.visibility)
+                : Icon(Icons.visibility_off),
           ),
         ),
       ],
@@ -257,10 +357,6 @@ class _AuthScreenState extends State<AuthScreen> {
                       padding: EdgeInsets.only(
                           left: 10.0, right: 10.0, bottom: 10.0),
                     ),
-                    RaisedButton(
-                      onPressed: buttonFunction,
-                      child: Text(buttonText),
-                    ),
                     // Padding(
                     //   padding: EdgeInsets.only(top: 20.0),
                     //   child:
@@ -283,4 +379,19 @@ class _AuthScreenState extends State<AuthScreen> {
       await prefs.setInt('firstLaunch', 1);
     }
   }
+
+  //   void _checkLogging() {
+  //   _logging = true;
+  //   widget.auth.getCurrentUser().then((user) {
+  //     setState(() {
+  //       if (user != null) {
+  //         _userId = user?.uid;
+  //       }
+  //       authStatus =
+  //           user?.uid == null ? AuthStatus.NOT_LOGGED_IN : AuthStatus.LOGGED_IN;
+  //       _redirect();
+  //     });
+  //   });
+  // }
+
 }
