@@ -8,7 +8,20 @@ import '../models/user.dart';
 class LoggedUser extends ChangeNotifier {
   User _user;
 
+  LoggedUser({
+    @required String uid,
+    @required String email,
+    @required String displayName,
+    String imageUrl,
+    String bio,
+    String location,
+    String filters,
+  }) {
+    _user = User(uid: uid, email: email, displayName: displayName, imageUrl: imageUrl, bio: bio, location: location, filters: filters,); 
+  }
+
   get user => [_user];
+
 }
 
 class AuthService with ChangeNotifier {

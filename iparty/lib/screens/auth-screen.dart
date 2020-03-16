@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:email_validator/email_validator.dart';
 
 import './splash-screen.dart';
 import '../providers/logged-user.dart';
@@ -18,7 +20,7 @@ class _AuthScreenState extends State<AuthScreen> {
   FirebaseUser user;
   ThemeData _themeOf;
   bool _obscureText = true, _autoValidate = false, _needCheck = true;
-  String _email, _password;
+  String _email, _password, _displayName;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +47,10 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
 // Genera el botón de registro
-  Widget _buildRegisterButton() => OutlineButton(
+  Widget _buildRegisterButton() {
+    var failedRegister = false;
+    var errorMessage = '';
+    return OutlineButton(
       borderSide: BorderSide(width: 2.0),
       splashColor: Colors.white,
       highlightColor: Colors.white,
@@ -57,8 +62,108 @@ class _AuthScreenState extends State<AuthScreen> {
         "regístrate",
         style: TextStyle(fontSize: 20),
       ),
-      onPressed: () {} // => _onButtonPressed(<Widget>[], 'regístrate', () {}),
-      );
+      onPressed: () => _onButtonPressed(
+        widgets: StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Form(
+              key: _formKey,
+              autovalidate: _autoValidate,
+              child: Column(
+                children: <Widget>[
+                  TextFormField(
+                    decoration: InputDecoration(
+                      hintText: 'Nombre de usuario',
+                      hintStyle: TextStyle(fontWeight: FontWeight.bold),
+                      icon: Icon(
+                        Icons.person,
+                        color: _themeOf.accentColor,
+                      ),
+                    ),
+                    onSaved: (value) => _displayName = value,
+                  ),
+                  emailWidget(),
+                  passwordWidget(setModalState),
+                  if (failedRegister)
+                    Padding(
+                      padding: EdgeInsets.only(top: 10.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Icon(Icons.error, color: _themeOf.errorColor),
+                          SizedBox(width: 10.0),
+                          Expanded(
+                            child: Text(
+                              errorMessage,
+                              style: TextStyle(color: _themeOf.errorColor),
+                              softWrap: true,
+                              overflow: TextOverflow.clip,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  RaisedButton(
+                    onPressed: () async {
+                      final form = _formKey.currentState;
+                      if (form.validate()) {
+                        // Si todo es correcto
+                        form.save();
+                        try {
+                          // Inicio de sesión
+                          // FirebaseUser result = await Provider.of<AuthService>(
+                          //         context,
+                          //         listen: false)
+                          //     .loginUser(email: _email, password: _password);
+                          FirebaseUser user = (await FirebaseAuth.instance
+                                  .createUserWithEmailAndPassword(
+                                      email: _email, password: _password))
+                              .user;
+                          UserUpdateInfo userUpdateInfo = new UserUpdateInfo();
+                          userUpdateInfo.displayName = _displayName;
+                          user.updateProfile(userUpdateInfo).then((_) {
+                            Firestore.instance
+                                .collection('users')
+                                .document(user.uid)
+                                .setData({
+                              'email': _email,
+                              'displayName': _displayName
+                            }).then((_) => Navigator.of(context).pop());
+                          });
+                        } on AuthException catch (error) {
+                          //Manejo de errores
+                          setModalState(() {
+                            failedRegister = true;
+                            if (error.code == 'ERROR_NETWORK_REQUEST_FAILED')
+                              errorMessage =
+                                  'Compruebe que está conectado a Internet y vuelva a intentarlo.';
+                            else if (error.code == 'ERROR_EMAIL_ALREADY_IN_USE')
+                             errorMessage =
+                                  'Ese e-mail ya está en uso.';
+                          });
+                          print('${error.code}: ${error.message}');
+                        } on Exception catch (error) {
+                          setModalState(() {
+                            failedRegister = true;
+                            errorMessage =
+                                'Ha habido un error. Vuelva a intentarlo';
+                          });
+                          print(error.toString());
+                        }
+                      } else {
+                        // Si no es correcto
+                        setModalState(() => _autoValidate = true);
+                      }
+                    },
+                    child: Text('regístrate'),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
 
 // Genera el botón de inicio de sesión
   Widget _buildLoginButton() {
@@ -83,32 +188,40 @@ class _AuthScreenState extends State<AuthScreen> {
             key: _formKey,
             autovalidate: _autoValidate,
             child: Column(children: <Widget>[
-              if (failedLogging)
-                Row(
-                  children: <Widget>[
-                    Icon(Icons.error, color: _themeOf.errorColor),
-                    SizedBox(width: 10.0),
-                    Text(
-                      errorMessage,
-                      style: TextStyle(color: _themeOf.errorColor),
-                      softWrap: true,
-                      overflow: TextOverflow.fade,
-                    ),
-                  ],
-                ),
               emailWidget(),
               passwordWidget(setModalState),
+              if (failedLogging)
+                Padding(
+                  padding: EdgeInsets.only(top: 10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      Icon(Icons.error, color: _themeOf.errorColor),
+                      SizedBox(width: 10.0),
+                      Expanded(
+                        child: Text(
+                          errorMessage,
+                          style: TextStyle(color: _themeOf.errorColor),
+                          softWrap: true,
+                          overflow: TextOverflow.clip,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               RaisedButton(
                 onPressed: () async {
                   final form = _formKey.currentState;
                   if (form.validate()) {
+                    // Si todo es correcto
                     form.save();
                     try {
-                      FirebaseUser result =
-                          await Provider.of<AuthService>(context, listen: false)
-                              .loginUser(email: _email, password: _password);
+                      // Inicio de sesión
+                      await Provider.of<AuthService>(context, listen: false)
+                          .loginUser(email: _email, password: _password);
                       Navigator.of(context).pop();
                     } on AuthException catch (error) {
+                      //Manejo de errores
                       setModalState(() {
                         failedLogging = true;
                         errorMessage = error.code ==
@@ -116,9 +229,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             ? 'Compruebe que está conectado a Internet y vuelva a intentarlo.'
                             : 'La contraseña y el e-mail no coinciden';
                       });
-                      print(error.message);
-                      print(error.code);
-                      // return _buildErrorDialog(context, error.message);
+                      print('${error.code}: ${error.message}');
                     } on Exception catch (error) {
                       setModalState(() {
                         failedLogging = true;
@@ -126,9 +237,9 @@ class _AuthScreenState extends State<AuthScreen> {
                             'Ha habido un error. Vuelva a intentarlo';
                       });
                       print(error.toString());
-                      // return _buildErrorDialog(context, error.toString());
                     }
                   } else {
+                    // Si no es correcto
                     setModalState(() => _autoValidate = true);
                   }
                 },
@@ -154,8 +265,14 @@ class _AuthScreenState extends State<AuthScreen> {
       maxLines: 1,
       keyboardType: TextInputType.emailAddress,
       autofocus: false,
-      validator: (value) =>
-          value.isEmpty ? 'Es necesario escribir un e-mail' : null,
+      validator: (value) {
+        var error;
+        if (value.isEmpty)
+          error = 'Es necesario escribir un e-mail';
+        else if (!EmailValidator.validate(value.trim()))
+          error = 'Es necesario escribir un e-mail válido';
+        return error;
+      },
       onSaved: (value) => _email = value.trim(),
     );
   }
@@ -196,7 +313,6 @@ class _AuthScreenState extends State<AuthScreen> {
               setModalState(
                 () {
                   _obscureText = !_obscureText;
-                  print(_obscureText.toString());
                 },
               );
             },

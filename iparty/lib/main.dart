@@ -53,7 +53,7 @@ class MyApp extends StatelessWidget {
           title: TextStyle(
               fontSize: 36.0,
               fontStyle: FontStyle.italic,
-              fontFamily: 'PTSansNarrow'),
+              fontFamily: 'PTSansNar5row'),
           body1: TextStyle(fontSize: 14.0),
         ),
         buttonTheme: ButtonThemeData(
@@ -64,9 +64,10 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: FutureBuilder<FirebaseUser>(
-        future: Provider.of<AuthService>(context).getUser(), //Comprueba si existe un usuario conectado
+        future: Provider.of<AuthService>(context)
+            .getUser(), //Comprueba si existe un usuario conectado
         builder: (context, AsyncSnapshot<FirebaseUser> snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) { 
+          if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.error != null) {
               print("error");
               return Text('Ha habido un error: ${snapshot.error}');

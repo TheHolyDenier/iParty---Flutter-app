@@ -1,12 +1,10 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 
 class User {
   final String uid;
-  final String username;
+  final String displayName;
   final String email;
-  final String imageUrl;
+  String imageUrl;
   String bio;
   String location;
   String filters;
@@ -14,7 +12,7 @@ class User {
   User({
     @required this.uid,
     @required this.email,
-    this.username,
+    @required this.displayName,
     this.imageUrl,
     this.bio,
     this.location,
@@ -24,7 +22,7 @@ class User {
   factory User.fromMap(Map data) {
     return User(
       uid: data['uid'],
-      username: data['username'],
+      displayName: data['displayName'],
       email: data['email'],
       imageUrl: data['imageUrl'],
       bio: data['bio'] ?? '',
