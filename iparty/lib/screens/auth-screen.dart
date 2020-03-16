@@ -1,10 +1,11 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import './main-screen.dart';
 import './splash-screen.dart';
+import '../providers/logged-user.dart';
 
 class AuthScreen extends StatefulWidget {
   static final routeName = '/auth-screen';
@@ -19,19 +20,13 @@ class _AuthScreenState extends State<AuthScreen> {
   bool _obscureText = true, _autoValidate = false, _needCheck = true;
   String _email, _password;
 
-  
   @override
   Widget build(BuildContext context) {
-    if (_needCheck) WidgetsBinding.instance.addPostFrameCallback((_) {
-      // var user = Provider.of<FirebaseUser>(context, listen: false);
-      // if (user != null) {
-      //   Navigator.of(context).pushReplacementNamed(AuthScreen.routeName);
-      // } else {
-      //   print('No user');
-      //   _checkLaunch(context);
-      // }
-      _needCheck = false; 
-    });
+    if (_needCheck)
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _checkLaunch(context);
+        _needCheck = false;
+      });
 
     _themeOf = Theme.of(context);
 
@@ -43,12 +38,6 @@ class _AuthScreenState extends State<AuthScreen> {
           _genLogo(),
           _buildLoginButton(),
           _buildRegisterButton(),
-          RaisedButton(
-            onPressed: () {
-              FirebaseAuth.instance.signOut();
-            },
-            child: Text('log-out'),
-          ),
         ],
       ),
     );
@@ -73,6 +62,7 @@ class _AuthScreenState extends State<AuthScreen> {
 // Genera el botón de inicio de sesión
   Widget _buildLoginButton() {
     var failedLogging = false;
+    var errorMessage = '';
     return RaisedButton(
       elevation: 0.0,
       splashColor: Colors.white,
@@ -100,19 +90,44 @@ class _AuthScreenState extends State<AuthScreen> {
                     Icon(Icons.error, color: _themeOf.errorColor),
                     SizedBox(width: 10.0),
                     Text(
-                      'Datos de inicio de sesión erróneos',
+                      errorMessage,
                       style: TextStyle(color: _themeOf.errorColor),
+                      softWrap: true,
                     ),
                   ],
                 ),
               emailWidget(),
               passwordWidget(setModalState),
               RaisedButton(
-                onPressed: () {
+                onPressed: () async {
                   final form = _formKey.currentState;
                   if (form.validate()) {
                     form.save();
-                    _firestoreAuth(context, setModalState, failedLogging);
+                    try {
+                      FirebaseUser result =
+                          await Provider.of<AuthService>(context, listen: false)
+                              .loginUser(email: _email, password: _password);
+                      Navigator.of(context).pop();
+                    } on AuthException catch (error) {
+                      setModalState(() {
+                        failedLogging = true;
+                        errorMessage = error.code ==
+                                'ERROR_NETWORK_REQUEST_FAILED'
+                            ? 'Compruebe que está conectado a Internet y vuelva a intentarlo.'
+                            : 'La contraseña y el e-mail no coinciden';
+                      });
+                      print(error.message);
+                      print(error.code);
+                      // return _buildErrorDialog(context, error.message);
+                    } on Exception catch (error) {
+                      setModalState(() {
+                        failedLogging = true;
+                        errorMessage =
+                            'Ha habido un error. Vuelva a intentarlo';
+                      });
+                      print(error.toString());
+                      // return _buildErrorDialog(context, error.toString());
+                    }
                   } else {
                     setModalState(() => _autoValidate = true);
                   }
@@ -124,55 +139,6 @@ class _AuthScreenState extends State<AuthScreen> {
         }),
       ),
     );
-  }
-
-  Future<Object> _firestoreAuth(BuildContext context, StateSetter setModalState, bool failedLogging) async {
-    String errorMessage;
-    try {
-      AuthResult result = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(
-              email: _email, password: _password);
-      //           .then((result) {
-      //   print(result.user.uid);
-        Navigator.of(context).pushReplacementNamed(MainScreen.routeName);
-      // });
-      user = result.user;
-    } catch (error) {
-      print('No user');
-      setModalState(() {
-        failedLogging = true;
-      });
-      switch (error.code) {
-        case "ERROR_INVALID_EMAIL":
-          errorMessage =
-              "Your email address appears to be malformed.";
-          break;
-        case "ERROR_WRONG_PASSWORD":
-          errorMessage = "Your password is wrong.";
-          break;
-        case "ERROR_USER_NOT_FOUND":
-          errorMessage = "User with this email doesn't exist.";
-          break;
-        case "ERROR_USER_DISABLED":
-          errorMessage =
-              "User with this email has been disabled.";
-          break;
-        case "ERROR_TOO_MANY_REQUESTS":
-          errorMessage = "Too many requests. Try again later.";
-          break;
-        case "ERROR_OPERATION_NOT_ALLOWED":
-          errorMessage =
-              "Signing in with Email and Password is not enabled.";
-          break;
-        default:
-          errorMessage = "An undefined Error happened.";
-      }
-    }
-    
-    if (errorMessage != null) {
-      return Future.error(errorMessage);
-    }
-    return user.uid;
   }
 
   TextFormField emailWidget() {
@@ -379,19 +345,4 @@ class _AuthScreenState extends State<AuthScreen> {
       await prefs.setInt('firstLaunch', 1);
     }
   }
-
-  //   void _checkLogging() {
-  //   _logging = true;
-  //   widget.auth.getCurrentUser().then((user) {
-  //     setState(() {
-  //       if (user != null) {
-  //         _userId = user?.uid;
-  //       }
-  //       authStatus =
-  //           user?.uid == null ? AuthStatus.NOT_LOGGED_IN : AuthStatus.LOGGED_IN;
-  //       _redirect();
-  //     });
-  //   });
-  // }
-
 }
