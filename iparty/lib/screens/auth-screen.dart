@@ -92,6 +92,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       errorMessage,
                       style: TextStyle(color: _themeOf.errorColor),
                       softWrap: true,
+                      overflow: TextOverflow.fade,
                     ),
                   ],
                 ),
@@ -140,7 +141,7 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 
-  TextFormField emailWidget() {
+  Widget emailWidget() {
     return TextFormField(
       decoration: InputDecoration(
         hintText: 'correo electrónico',
@@ -159,7 +160,7 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 
-  Stack passwordWidget(StateSetter setModalState) {
+  Widget passwordWidget(StateSetter setModalState) {
     return Stack(
       alignment: Alignment.centerRight,
       children: <Widget>[
@@ -180,7 +181,7 @@ class _AuthScreenState extends State<AuthScreen> {
           validator: (value) {
             var error;
             if (value.isEmpty)
-              error = 'Es necesario escribir un e-mail';
+              error = 'Este campo no puede estar vacío';
             else if (value.trim().length < 6)
               error = 'Contraseña demasiado corta';
             return error;
@@ -297,7 +298,6 @@ class _AuthScreenState extends State<AuthScreen> {
                 bottom: MediaQuery.of(context).viewInsets.bottom),
             child: ClipRRect(
               borderRadius: BorderRadius.only(
-                // topLeft: Radius.circular(20.0),
                 topRight: Radius.circular(30.0),
               ),
               child: Container(
@@ -315,7 +315,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       ),
                     ),
                     Padding(
-                      <Widget>[widgets],
+                      child: widgets, //widgets del modal
                       padding: EdgeInsets.only(
                           left: 10.0, right: 10.0, bottom: 10.0),
                     ),
