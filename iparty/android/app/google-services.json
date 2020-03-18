@@ -1,34 +1,34 @@
 {
   "project_info": {
-    "project_number": "747086859782",
-    "firebase_url": "https://iparty-goblin.firebaseio.com",
-    "project_id": "iparty-goblin",
-    "storage_bucket": "iparty-goblin.appspot.com"
+    "project_number": "527842765035",
+    "firebase_url": "https://iparty-goblin-d1e76.firebaseio.com",
+    "project_id": "iparty-goblin-d1e76",
+    "storage_bucket": "iparty-goblin-d1e76.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:747086859782:android:e84c788cb5b810058efd87",
+        "mobilesdk_app_id": "1:527842765035:android:87ead6cb56b0f557ceb6ae",
         "android_client_info": {
           "package_name": "com.example.iparty"
         }
       },
       "oauth_client": [
         {
-          "client_id": "747086859782-vf4ltqv05oj50t27gm6a2fo9g035m284.apps.googleusercontent.com",
+          "client_id": "527842765035-c2p4ouc41ilr6oets3vms6fsujh3e0ch.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBRAoiUdaXLfoMgEtZYJoiJzli2WbSB_hg"
+          "current_key": "AIzaSyCisoFt22oOiOrmtYgaIh4zlYtNTOY2ph4"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "747086859782-vf4ltqv05oj50t27gm6a2fo9g035m284.apps.googleusercontent.com",
+              "client_id": "527842765035-c2p4ouc41ilr6oets3vms6fsujh3e0ch.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
