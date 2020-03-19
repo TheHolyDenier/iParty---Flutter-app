@@ -47,8 +47,9 @@ class _HomeScreenState extends State<HomeScreen> {
           .getUId()
           .then((authUser) {
         users.addOneUser(authUser.uid, true);
+        
       });
-    }
+    } 
     _isInit = false;
   }
 
