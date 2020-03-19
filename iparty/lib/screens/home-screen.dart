@@ -99,8 +99,7 @@ class HomeScreen extends StatelessWidget {
                           ),
                           Padding(
                             padding: const EdgeInsets.all(15.0),
-                            child: Column(children: <Widget> //todo,
-                                [
+                            child: Column(children: <Widget>[
                               PartyDetailsWidget(_party),
                               SizedBox(height: 5.0),
                               Text(

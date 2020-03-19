@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../screens/home-screen.dart';
+import '../screens/profile-edit-screen.dart';
 import '../providers/logged-user.dart';
 
 class MyDrawer extends StatelessWidget {
@@ -42,6 +43,7 @@ class MyDrawer extends StatelessWidget {
             title: Text('Tu perfil'),
             onTap: () {
               Navigator.of(context).pop();
+              Navigator.of(context).pushReplacementNamed(EditProfileScreen.routeName);
             },
           ),
           Divider(),

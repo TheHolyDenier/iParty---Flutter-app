@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:iparty/screens/party-summary.dart';
+import 'package:iparty/screens/profile-edit-screen.dart';
 import 'package:provider/provider.dart';
 
 import './screens/auth-screen.dart';
@@ -74,7 +75,7 @@ class MyApp extends StatelessWidget {
               return Text('Ha habido un error: ${snapshot.error}');
             }
             return snapshot.hasData
-                ? HomeScreen(/*snapshot.data*/)
+                ? HomeScreen()
                 : AuthScreen();
           } else {
             return Scaffold(
@@ -93,6 +94,7 @@ class MyApp extends StatelessWidget {
         SplashPage.routeName: (context) => SplashPage(),
         HomeScreen.routeName: (context) => HomeScreen(),
         PartySummaryScreen.routeName: (context) => PartySummaryScreen(),
+        EditProfileScreen.routeName: (context) => EditProfileScreen(),
       },
     );
   }
