@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:iparty/providers/logged-user.dart';
+import 'package:iparty/providers/users.dart';
 import 'package:iparty/screens/party-summary.dart';
 import 'package:iparty/widgets/party-details-summary.dart';
+import 'package:provider/provider.dart';
 
 // import 'package:provider/provider.dart';
 
@@ -8,9 +11,16 @@ import '../models/party.dart';
 // import '../providers/logged-user.dart';
 import '../widgets/drawer.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   static final routeName = '/home-screen';
+
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   ThemeData _themeOf;
+  var _isInit = true;
 
   final _party = Party(
     date: '18/03/2020',
@@ -27,6 +37,20 @@ class HomeScreen extends StatelessWidget {
     summary:
         'Carcassonne is a tile-based German-style board game for two to five players, designed by Klaus-Jürgen Wrede and published in 2000 by Hans im Glück in German and by Rio Grande Games and Z-Man Games in English. It received the Spiel des Jahres and the Deutscher Spiele Preis awards in 2001.',
   );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    var users = Provider.of<UsersProvider>(context, listen: false);
+    if (_isInit) {
+      Provider.of<AuthService>(context, listen: false)
+          .getUId()
+          .then((authUser) {
+        users.addOneUser(authUser.uid, true);
+      });
+    }
+    _isInit = false;
+  }
 
   @override
   Widget build(BuildContext context) {

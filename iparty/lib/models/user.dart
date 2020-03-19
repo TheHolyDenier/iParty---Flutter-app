@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class User {
@@ -19,15 +20,28 @@ class User {
     this.filters,
   });
 
-  factory User.fromMap(Map data) {
+  factory User.fromFirestore(DocumentSnapshot doc) {
+    Map data = doc.data;
     return User(
-      uid: data['uid'],
+      uid: doc.documentID,
       displayName: data['displayName'],
       email: data['email'],
-      imageUrl: data['imageUrl'],
+      imageUrl: data['imageUrl'] ?? '',
       bio: data['bio'] ?? '',
       location: data['location'] ?? '',
       filters: data['filters'] ?? '',
     );
+  }
+
+  toJson() {
+    return {
+      'uid': this.uid,
+      'email': this.email,
+      'displayName': this.displayName,
+      'imageUrl': this.imageUrl,
+      'bio': this.bio,
+      'location': this.location,
+      'filters': this.filters,
+    };
   }
 }
