@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:iparty/screens/party-summary.dart';
+import 'package:iparty/widgets/party-details-summary.dart';
 
 // import 'package:provider/provider.dart';
 
@@ -10,7 +12,7 @@ class HomeScreen extends StatelessWidget {
   static final routeName = '/home-screen';
   ThemeData _themeOf;
 
-  var _parties = Party(
+  final _party = Party(
     date: '18/03/2020',
     headquarter: 'Mi casa',
     isCampaign: false,
@@ -36,120 +38,81 @@ class HomeScreen extends StatelessWidget {
       body: RefreshIndicator(
           child: ListView.builder(
             itemBuilder: (context, index) {
-              String isCampaign = _parties.isCampaign ? 'Campaña' : 'Partida';
-              String isRpg = _parties.isRpg ? 'rol' : 'juego de mesa';
-              String isOnline = _parties.isOnline ? 'onlinr' : '';
+              String isCampaign = _party.isCampaign ? 'Campaña' : 'Partida';
+              String isRpg = _party.isRpg ? 'rol' : 'juego de mesa';
+              String isOnline = _party.isOnline ? 'onlinr' : '';
               return Container(
                 width: double.infinity,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Card(
-                    elevation: 5.0,
-                    clipBehavior: Clip.antiAliasWithSaveLayer,
-                    child: Column(
-                      children: <Widget>[
-                        Stack(
-                          children: <Widget>[
-                            Image.network(
-                              _parties.imageUrl,
-                              fit: BoxFit.cover,
-                              height: 170,
-                              width: double.infinity,
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              left: 0,
-                              child: Container(
-                                padding: EdgeInsets.only(left: 5, right: 5),
-                                color: Colors.black54,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: <Widget>[
-                                    Text(
-                                      '$isCampaign de $isRpg $isOnline',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                      ),
-                                      textAlign: TextAlign.right,
-                                    ),
-                                    Text(
-                                      _parties.title,
-                                      overflow: TextOverflow.ellipsis,
-                                      textAlign: TextAlign.right,
-                                      style: _themeOf.textTheme.title.copyWith(
-                                          color: Colors.white, height: 1),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          child: Column(
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).pushNamed(
+                          PartySummaryScreen.routeName,
+                          arguments: _party);
+                    },
+                    child: Card(
+                      elevation: 5.0,
+                      clipBehavior: Clip.antiAliasWithSaveLayer,
+                      child: Column(
+                        children: <Widget>[
+                          Stack(
                             children: <Widget>[
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: <Widget>[
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 5.0),
-                                    child: Row(
-                                      children: <Widget>[
-                                        Icon(Icons.supervised_user_circle),
-                                        SizedBox(width: 5),
-                                        Column(
-                                          children: <Widget>[
-                                            Text(
-                                                '${_parties.players['min']} - ${_parties.players['max']}'),
-                                            Text(
-                                              'Jugadores',
-                                              style: TextStyle(
-                                                  color: Colors.black54,
-                                                  fontStyle: FontStyle.italic,
-                                                  height: 1),
-                                            ),
-                                          ],
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                  Row(
+                              Image.network(
+                                _party.imageUrl,
+                                fit: BoxFit.cover,
+                                height: 170,
+                                width: double.infinity,
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                left: 0,
+                                child: Container(
+                                  padding: EdgeInsets.only(left: 5, right: 5),
+                                  color: Colors.black54,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
                                     children: <Widget>[
-                                      Icon(Icons.calendar_today),
-                                      SizedBox(width: 5),
-                                      Column(
-                                        children: <Widget>[
-                                          Text('${_parties.date}'),
-                                          Text(
-                                            '${_parties.date}',
-                                            style: TextStyle(
-                                                color: Colors.black54,
-                                                fontStyle: FontStyle.italic,
-                                                height: 1),
-                                          ),
-                                        ],
-                                      )
+                                      Text(
+                                        '$isCampaign de $isRpg $isOnline',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                        textAlign: TextAlign.right,
+                                      ),
+                                      Text(
+                                        _party.title,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.right,
+                                        style: _themeOf.textTheme.title
+                                            .copyWith(
+                                                color: Colors.white, height: 1),
+                                      ),
                                     ],
                                   ),
-                                ],
+                                ),
                               ),
+                            ],
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: Column(children: <Widget> //todo,
+                                [
+                              PartyDetailsWidget(_party),
                               SizedBox(height: 5.0),
                               Text(
-                                _parties.summary,
+                                _party.summary,
                                 softWrap: true,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                            ],
+                            ]),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),

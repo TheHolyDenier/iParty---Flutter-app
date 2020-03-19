@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
+import '../screens/home-screen.dart';
 import '../providers/logged-user.dart';
 
 class MyDrawer extends StatelessWidget {
@@ -22,12 +23,26 @@ class MyDrawer extends StatelessWidget {
             ),
           ),
           ListTile(
-            title: Text('Item 1'),
-            onTap: () {},
+            leading: Icon(Icons.home),
+            title: Text('Inicio'),
+            onTap: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
+            },
           ),
           ListTile(
-            title: Text('Item 1'),
-            onTap: () {},
+            leading: Icon(Icons.games),
+            title: Text('Tus mesas'),
+            onTap: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.person),
+            title: Text('Tu perfil'),
+            onTap: () {
+              Navigator.of(context).pop();
+            },
           ),
           Divider(),
           ListTile(

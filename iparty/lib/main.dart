@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:iparty/screens/party-summary.dart';
 import 'package:provider/provider.dart';
 
 import './screens/auth-screen.dart';
@@ -91,6 +92,7 @@ class MyApp extends StatelessWidget {
         AuthScreen.routeName: (context) => AuthScreen(),
         SplashPage.routeName: (context) => SplashPage(),
         HomeScreen.routeName: (context) => HomeScreen(),
+        PartySummaryScreen.routeName: (context) => PartySummaryScreen(),
       },
     );
   }
