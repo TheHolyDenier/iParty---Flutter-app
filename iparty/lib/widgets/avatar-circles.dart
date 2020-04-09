@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class MyTextAvatarCircle extends StatelessWidget {
   final String _letter;
+
   MyTextAvatarCircle(this._letter);
 
   @override
@@ -18,11 +19,15 @@ class MyTextAvatarCircle extends StatelessWidget {
 
 class MyImageAvatarCircle extends StatelessWidget {
   final String imageUrl;
-  MyImageAvatarCircle(this.imageUrl);
+  final bool isNetwork;
+
+  MyImageAvatarCircle(this.imageUrl, this.isNetwork);
+
   @override
   Widget build(BuildContext context) {
     return CircleAvatar(
-      backgroundImage: NetworkImage(imageUrl),
+      backgroundImage:
+          isNetwork ? NetworkImage(imageUrl) : AssetImage(imageUrl),
     );
   }
 }

@@ -1,11 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+
+import 'package:provider/provider.dart';
+
 import 'package:iparty/providers/users.dart';
 import 'package:iparty/widgets/avatar-circles.dart';
 import 'package:iparty/widgets/drawer.dart';
-import 'package:provider/provider.dart';
+import 'package:iparty/widgets/profilepic-picker.dart';
 
 class EditProfileScreen extends StatefulWidget {
   static final routeName = '/edit-profile';
@@ -16,12 +18,13 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   var _imageUrl = '';
+  var _tempUrl = '';
 
   @override
   Widget build(BuildContext context) {
     var activeUser =
         Provider.of<UsersProvider>(context, listen: false).activeUser;
-    print(activeUser);
+    print(activeUser); // Instance of user
     return Scaffold(
       appBar: AppBar(title: Text('Tu perfil')),
       drawer: MyDrawer(),
@@ -33,15 +36,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             Stack(
               children: [
                 Container(
-                  height: 200,
-                  width: 200,
-                  child: _imageUrl == ''
-                      ? MyTextAvatarCircle('H')
-                      : MyImageAvatarCircle(_imageUrl),
-                  //  activeUser.imageUrl.isEmpty
-                  //     ? MyTextAvatarCircle(activeUser.displayName[0])
-                  //     : MyImageAvatarCircle(activeUser.imageUrl),
-                ),
+                    height: 200,
+                    width: 200,
+                    child: (_imageUrl == '' && _tempUrl == '')
+                        ? MyTextAvatarCircle('H')
+                        : MyImageAvatarCircle(
+                            _tempUrl == '' ? _imageUrl : _tempUrl,
+                            _tempUrl == '')
+                    //  activeUser.imageUrl.isEmpty
+                    //     ? MyTextAvatarCircle(activeUser.displayName[0])
+                    //     : MyImageAvatarCircle(activeUser.imageUrl),
+                    ),
                 Positioned(
                   bottom: 10,
                   right: 10,
@@ -117,89 +122,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<String> _choseImage(BuildContext context) async {
     String imageUrl = '';
-    File image;
-    return showDialog<String>(
+    final result = await showDialog<String>(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: true,
       // dialog is dismissible with a tap on the barrier
       builder: (BuildContext context) {
-        return StatefulBuilder(builder: (context, setDialogState) {
-          return AlertDialog(
-            title: Text('Imagen de perfil'),
-            content: new Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                SizedBox(
-                  child: image == null
-                      ? Container(
-                          child: Icon(Icons.photo),
-                          color: Theme.of(context).accentColor,
-                        )
-                      : FittedBox(
-                          child: Image.file(image),
-                          fit: BoxFit.cover,
-                        ),
-                  width: 200,
-                  height: 200,
-                ),
-                SizedBox(
-                  height: 10.0,
-                ),
-                Column(
-                  children: <Widget>[
-                    _imageSelectButton(Icons.photo, 'Desde galería', () {}),
-                    _imageSelectButton(
-                        Icons.photo_camera,
-                        'Desde la cámara',
-                        () => setDialogState(() async {
-                              image = await _openCamera();
-                              print('tata' + image.toString());
-                            })),
-                  ],
-                ),
-              ],
-            ),
-            actions: <Widget>[
-              FlatButton(
-                child: Text('Ok'),
-                onPressed: () {
-                  Navigator.of(context).pop(imageUrl);
-                },
-              ),
-            ],
-          );
-        });
+        return ProfilePicDialog();
       },
     );
-  }
-
-  Widget _imageSelectButton(IconData icon, String text, Function function) {
-    return SizedBox(
-      width: 200,
-      child: RaisedButton(
-        onPressed: function,
-        child: Row(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(right: 5.0),
-              child: Icon(icon),
-            ),
-            Text(text),
-          ],
-        ),
-      ),
-    );
-  }
-
-  //connect camera
-  Future<File> _openCamera() async {
-    print('Picker is Called');
-    File img = await ImagePicker.pickImage(source: ImageSource.camera);
-//    if (img != null) {
-//      setState(() {
-//        image = img;
-//      });
-//    }
-    return img;
+    print(result.toString());
+    setState(() {
+      _tempUrl = result.toString();
+    });
+    return imageUrl;
   }
 }

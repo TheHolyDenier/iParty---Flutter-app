@@ -47,7 +47,7 @@ class _MyDrawerState extends State<MyDrawer> {
                               height: 60,
                               child: user.imageUrl.isEmpty
                                   ? MyTextAvatarCircle(user.displayName[0])
-                                  : MyImageAvatarCircle(user.imageUrl),
+                                  : MyImageAvatarCircle(user.imageUrl, true),
                             ),
                             SizedBox(width: 10),
                             Column(
