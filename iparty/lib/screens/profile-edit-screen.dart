@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image/image.dart' as img;
 
 import 'package:flutter/material.dart';
@@ -132,56 +134,38 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   _saveData() async {
-    img.Image image;
-    if (_tempUrl != '') {
-      img.Image imageTemp = img.decodeImage(File(_tempUrl).readAsBytesSync());
-      img.Image resizedImg = img.copyResize(imageTemp, width: 500);
-//      img.Image jpgImg = img.encodeJpg(resizedImg);
-      image = resizedImg;
-    }
+    final FirebaseStorage _storage =
+        FirebaseStorage(storageBucket: 'gs://iparty-goblin-d1e76.appspot.com');
 
-//    try {
-//      Firestore.instance.collection('users').document(_user.uid).setData(
-//          {'email': _email, 'displayName': _displayName}).then((_) async {
-//        await Provider.of<AuthService>(context, listen: false)
-//            .loginUser(email: _email, password: _password);
-//        Navigator.of(context).pop();
-//      });
-//    } on AuthException catch (error) {
-//      //Manejo de errores
-//      setModalState(() {
-//        failedRegister = true;
-//        if (error.code == 'ERROR_NETWORK_REQUEST_FAILED')
-//          errorMessage =
-//              'Compruebe que está conectado a Internet y vuelva a intentarlo.';
-//        else if (error.code == 'ERROR_EMAIL_ALREADY_IN_USE')
-//          errorMessage = 'Ese e-mail ya está en uso.';
-//      });
-//      print('${error.code}: ${error.message}');
-//    } on Exception catch (error) {
-//      setModalState(() {
-//        failedRegister = true;
-//        errorMessage =
-//            'Ha habido un error. Compruebe que tenga acceso a Internet y vuelva a intentarlo';
-//      });
-//      print(error.toString());
-//    }
+    /// Starts an upload task
+    String filePath = 'images/profile/${_user.uid}.jpg';
+    final ref = _storage.ref().child(filePath);
+    ref.putFile(File(_tempUrl));
+    final url = await ref.getDownloadURL() as String;
+    try {
+      Firestore.instance
+          .collection('users')
+          .document(_user.uid)
+          .updateData({'imageUrl': url, 'bio': _controllerBio.text});
+      var provider = Provider.of<UsersProvider>(context, listen: false);
+      provider.updateActiveUser(bio: _controllerBio.text, imageUrl: url);
+    } on Firestore catch (error) {
+      print(error.toString());
+    }
   }
 
-  Future<String> _choseImage(BuildContext context) async {
-    String imageUrl = '';
-    final result = await showDialog<String>(
+  Future<void> _choseImage(BuildContext context) async {
+    await showDialog<String>(
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
         return ProfilePicDialog();
       },
-    );
-    print(result.toString());
-    setState(() {
-      _tempUrl = result.toString();
+    ).then((result) {
+      setState(() {
+        _tempUrl = result ?? _tempUrl;
+      });
     });
-    return imageUrl;
   }
 
   void _searchActiveUser() {
@@ -191,6 +175,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
     if (_user.imageUrl != null) {
       _imageUrl = _user.imageUrl;
+    }
+    if (_user.bio != null) {
+      _controllerBio.text = _user.bio;
     }
   }
 }

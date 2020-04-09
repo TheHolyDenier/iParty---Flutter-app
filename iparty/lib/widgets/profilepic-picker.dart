@@ -1,6 +1,10 @@
+import 'dart:async';
+import 'dart:ui' as ui;
+
 import 'package:image/image.dart' as Img;
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart';
 
 import 'package:image_picker/image_picker.dart';
 
@@ -22,16 +26,15 @@ class _ProfilePicDialog extends State<ProfilePicDialog> {
           children: <Widget>[
             SizedBox(
               child: _image == null
-                  ? Container(
-                      child: Icon(Icons.photo),
-                      color: Theme.of(context).accentColor,
-                    )
-                  : FittedBox(
-                      child: Image.file(_image),
-                      fit: BoxFit.cover,
+                  ? Text('Seleccione una imagen...')
+                  : Container(
+                      width: 200,
+                      height: 200,
+                      child: FittedBox(
+                        child: Image.file(_image),
+                        fit: BoxFit.cover,
+                      ),
                     ),
-              width: 200,
-              height: 200,
             ),
             SizedBox(
               height: 10.0,
@@ -52,8 +55,9 @@ class _ProfilePicDialog extends State<ProfilePicDialog> {
             child: Text('Cancelar'),
             onPressed: () => Navigator.of(context).pop()),
         FlatButton(
-            child: Text('Guardar'),
-            onPressed: () => Navigator.pop(context, _image.uri.toFilePath())),
+          child: Text('Guardar'),
+          onPressed: _image != null ? _cropImage : null,
+        ),
       ],
     );
   }
@@ -84,5 +88,32 @@ class _ProfilePicDialog extends State<ProfilePicDialog> {
         _image = img;
       });
     }
+  }
+
+  Future<void> _cropImage() async {
+    await ImageCropper.cropImage(
+            sourcePath: _image.path,
+            cropStyle: CropStyle.circle,
+            compressFormat: ImageCompressFormat.jpg,
+            aspectRatioPresets: [
+              CropAspectRatioPreset.square,
+            ],
+            androidUiSettings: AndroidUiSettings(
+                toolbarTitle: 'Recortar foto de perfil',
+                toolbarColor: Theme.of(context).accentColor,
+                toolbarWidgetColor: Colors.white,
+                initAspectRatio: CropAspectRatioPreset.square,
+                lockAspectRatio: true),
+            maxWidth: 350,
+            maxHeight: 350)
+        .then((cropped) {
+      if (cropped != null) {
+        setState(() {
+          _image = cropped ?? _image;
+        });
+        String path = _image.uri.toFilePath();
+        Navigator.pop(context, path);
+      }
+    });
   }
 }

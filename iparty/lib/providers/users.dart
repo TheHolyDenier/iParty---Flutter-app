@@ -9,7 +9,13 @@ class UsersProvider with ChangeNotifier {
   Map<String, User> _users = {};
   User _activeUser;
 
-  User get activeUser => _activeUser; 
+  User get activeUser => _activeUser;
+
+  updateActiveUser({String bio, String imageUrl}) {
+    _activeUser.bio = bio;
+    _activeUser.imageUrl = imageUrl;
+    notifyListeners(); 
+  }
 
   Map<String, User> get users => {..._users};
 
@@ -23,7 +29,7 @@ class UsersProvider with ChangeNotifier {
       doc.get().then((doc) {
         if (doc.exists) {
           _users.putIfAbsent(uid, () => User.fromFirestore(doc));
-          if (active) _activeUser = User.fromFirestore(doc); 
+          if (active) _activeUser = User.fromFirestore(doc);
           notifyListeners();
         } else {
           print('Not found');
