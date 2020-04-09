@@ -1,6 +1,6 @@
 import 'dart:io';
+import 'package:image/image.dart' as img;
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:iparty/models/user.dart';
 
@@ -132,6 +132,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   _saveData() async {
+    img.Image image;
+    if (_tempUrl != '') {
+      img.Image imageTemp = img.decodeImage(File(_tempUrl).readAsBytesSync());
+      img.Image resizedImg = img.copyResize(imageTemp, width: 500);
+//      img.Image jpgImg = img.encodeJpg(resizedImg);
+      image = resizedImg;
+    }
+
 //    try {
 //      Firestore.instance.collection('users').document(_user.uid).setData(
 //          {'email': _email, 'displayName': _displayName}).then((_) async {
