@@ -11,25 +11,48 @@ class MapDialog extends StatefulWidget {
 }
 
 class _MapDialogState extends State<MapDialog> {
-  Completer<GoogleMapController> _controller = Completer();
+  bool searchLoc = false;
+  bool _searchingByAddress = false;
   LatLng _center = const LatLng(40.974737, -5.672455);
-  final Set<Marker> _markers = {};
+  GoogleMapController _mapController;
+  Map<MarkerId, Marker> _marker = <MarkerId, Marker>{};
 
   _getCurrentLocation() async {
-    final position = await Geolocator()
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    setState(() {
-      _center = LatLng(position.latitude, position.longitude);
-    });
+    if (!searchLoc) {
+      await Geolocator()
+          .getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
+          .then((Position position) {
+        setState(() {
+          _center = LatLng(position.latitude, position.longitude);
+          _mapController.animateCamera(
+            CameraUpdate.newCameraPosition(
+              CameraPosition(target: _center, zoom: 20.0),
+            ),
+          );
+          final markerId = MarkerId('headquarter');
+          final Marker marker = Marker(
+            markerId: markerId,
+            position: _center,
+            draggable: true,
+            onDragEnd: ((value) {
+              print(value.latitude);
+              print(value.longitude);
+              _center = LatLng(value.latitude, value.longitude);
+            }),
+          );
 
+          setState(() {
+            _marker[markerId] = marker;
+          });
+        });
+      });
+
+      searchLoc = true;
+    }
   }
 
   void _onCameraMove(CameraPosition position) {
     _center = position.target;
-  }
-
-  void _onMapCreated(GoogleMapController controller) {
-    _controller.complete(controller);
   }
 
   @override
@@ -42,26 +65,50 @@ class _MapDialogState extends State<MapDialog> {
         body: Stack(
           children: <Widget>[
             GoogleMap(
-              onMapCreated: _onMapCreated,
+              onMapCreated: (GoogleMapController controller) {
+                _mapController = controller;
+              },
               initialCameraPosition: CameraPosition(
                 target: _center,
-                zoom: 50.0,
+                zoom: 20.0,
               ),
-              markers: {
-                Marker(
-                    onTap: () {
-                      print('Tapped');
-                    },
-                    draggable: true,
-                    markerId: MarkerId('Marker'),
-                    position: _center,
-                    onDragEnd: ((value) {
-                      print(value.latitude);
-                      print(value.longitude);
-                    }))
-              },
+              markers: Set<Marker>.of(_marker.values),
               onCameraMove: _onCameraMove,
             ),
+            _searchingByAddress
+                ? Positioned(
+                    top: 0,
+                    right: 0,
+                    left: 0,
+                    child: Container(
+                      height: 50,
+                      padding: EdgeInsets.all(8),
+                      child: TextField(
+//                    onChanged: onTextChange,
+                        decoration: InputDecoration(
+                            fillColor: Colors.black.withOpacity(0.1),
+                            filled: true,
+                            prefixIcon: Icon(Icons.search),
+                            suffixIcon: IconButton(
+                              icon: Icon(Icons.cancel),
+                              onPressed: () {
+                                setState(() => _searchingByAddress = false);
+                              },
+                            ),
+//                      hintText: 'Search something ...',
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide.none),
+                            contentPadding: EdgeInsets.zero),
+                      ),
+                    ),
+                  )
+                : FloatingActionButton(
+                    child: Icon(Icons.search),
+                    onPressed: () {
+                      setState(() => _searchingByAddress = true);
+                    },
+                  ),
           ],
         ));
   }
