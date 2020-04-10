@@ -19,7 +19,8 @@ class UsersProvider with ChangeNotifier {
       double km = 1.0,
       bool rpg = true,
       bool table = true,
-      bool safe = true}) {
+      bool safe = true,
+      bool online = true}) {
     _activeUser.bio = bio;
     _activeUser.imageUrl = imageUrl;
     if (latLng != null) {
@@ -30,6 +31,7 @@ class UsersProvider with ChangeNotifier {
     _activeUser.rpg = rpg;
     _activeUser.table = table;
     _activeUser.safe = safe;
+    _activeUser.online = online;
     notifyListeners();
   }
 
@@ -43,7 +45,6 @@ class UsersProvider with ChangeNotifier {
       var doc = _db.collection('users').document(uid);
 
       doc.get().then((doc) {
-
         if (doc.exists) {
           _users.putIfAbsent(uid, () => User.fromFirestore(doc));
           if (active) _activeUser = User.fromFirestore(doc);

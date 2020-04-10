@@ -33,6 +33,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   bool _rpg = true;
   bool _tableGames = true;
   bool _safeSpace = true;
+  bool _online = true;
   ErrorsKm _errorsKm = ErrorsKm.ok;
 
   @override
@@ -137,8 +138,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                     crossAxisAlignment:
                                         WrapCrossAlignment.center,
                                     alignment: WrapAlignment.center,
-                                    spacing: 20.0,
+                                    spacing: 10.0,
+                                    runSpacing: 5.0,
                                     children: <Widget>[
+                                      ChoiceChip(
+                                        label: Text('Online'),
+                                        selected: _online,
+                                        onSelected: (_) {
+                                          setState(() {
+                                            _online = !_online;
+                                          });
+                                        },
+                                      ),
                                       ChoiceChip(
                                         label: Text('Rol'),
                                         selected: _rpg,
@@ -177,6 +188,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                       _checkErroKm();
                                     },
                                     decoration: new InputDecoration(
+                                        labelText:
+                                            'Distancia máxima de partidas: ',
                                         suffix: Text('km'),
                                         errorText: _errorsKm == ErrorsKm.ok
                                             ? null
@@ -225,9 +238,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         'rpg': _rpg ? '1' : '0',
         'table': _tableGames ? '1' : '0',
         'safe': _safeSpace ? '1' : '0',
+        'online': _online ? '1' : '0',
       });
       var provider = Provider.of<UsersProvider>(context, listen: false);
-      provider.updateActiveUser(bio: _controllerBio.text, imageUrl: url);
+      provider.updateActiveUser(
+          bio: _controllerBio.text ?? '',
+          imageUrl: url ?? '',
+          km: _kmController.text != null
+              ? double.parse(_kmController.text)
+              : 1.0,
+          latLng: _latLng,
+          online: _online,
+          rpg: _rpg,
+          safe: _safeSpace,
+          table: _tableGames);
     } on Firestore catch (error) {
       print(error.toString());
     }
@@ -286,18 +310,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   void _searchActiveUser() {
     var provider = Provider.of<UsersProvider>(context, listen: false);
-    if (provider != null) {
-      _user = provider.activeUser;
-    }
-    if (_user.imageUrl != null) {
+    setState(() {
+      if (provider != null) {
+        _user = provider.activeUser;
+      }
       _imageUrl = _user.imageUrl;
-    }
-    if (_user.bio != null) {
       _controllerBio.text = _user.bio;
-    }
-    if (_user.latitude != null) {
       _latLng = LatLng(_user.latitude, _user.longitude);
       _searchAddress();
-    }
+      _rpg = _user.rpg;
+      _tableGames = _user.table;
+      _safeSpace = _user.safe;
+      _kmController.text = _user.km.toString();
+      _online = _user.online;
+    });
   }
 }
