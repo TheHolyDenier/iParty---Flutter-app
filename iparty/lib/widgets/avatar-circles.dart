@@ -18,16 +18,18 @@ class MyTextAvatarCircle extends StatelessWidget {
 }
 
 class MyImageAvatarCircle extends StatelessWidget {
-  final String imageUrl;
-  final bool isNetwork;
+  final String _imageUrl;
+  final bool _isNetwork;
 
-  MyImageAvatarCircle(this.imageUrl, this.isNetwork);
+  MyImageAvatarCircle(this._imageUrl, this._isNetwork);
 
   @override
   Widget build(BuildContext context) {
     return CircleAvatar(
       backgroundImage:
-          isNetwork ? NetworkImage(imageUrl) : AssetImage(imageUrl),
+          _isNetwork
+              ? NetworkImage(_imageUrl)
+              : AssetImage(_imageUrl),
     );
   }
 }

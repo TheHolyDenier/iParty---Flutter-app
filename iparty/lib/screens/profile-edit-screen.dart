@@ -1,17 +1,16 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:image/image.dart' as img;
-
+import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
-import 'package:iparty/models/user.dart';
-
 import 'package:provider/provider.dart';
+import '../models/user.dart';
 
-import 'package:iparty/providers/users.dart';
-import 'package:iparty/widgets/avatar-circles.dart';
-import 'package:iparty/widgets/drawer.dart';
-import 'package:iparty/widgets/profilepic-picker.dart';
+import '../providers/users.dart';
+import '../widgets/avatar-circles.dart';
+import '../widgets/drawer.dart';
+import '../widgets/profilepic-picker.dart';
+import '../widgets/map-dialog.dart';
 
 class EditProfileScreen extends StatefulWidget {
   static final routeName = '/edit-profile';
@@ -54,7 +53,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     height: 200,
                     width: 200,
                     child: (_imageUrl == '' && _tempUrl == '')
-                        ? MyTextAvatarCircle('H')
+                        ? MyTextAvatarCircle(_user.displayName[0].toUpperCase())
                         : MyImageAvatarCircle(
                             _tempUrl == '' ? _imageUrl : _tempUrl,
                             _tempUrl == '')),
@@ -62,7 +61,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   bottom: 10,
                   right: 10,
                   child: FloatingActionButton(
-                    onPressed: () => _choseImage(context),
+                    onPressed: () => _choseImage(),
                     child: Icon(Icons.photo_camera, color: Colors.white),
                   ),
                 ),
@@ -94,12 +93,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             decoration: InputDecoration(
                                 icon: Icon(Icons.map), hintText: 'Dirección')),
                         Positioned(
-                          child: Icon(Icons.location_searching,
-                              color: Theme.of(context).accentColor),
+                          child: IconButton(
+                            icon: Icon(Icons.location_searching,
+                                color: Theme.of(context).accentColor),
+                            onPressed: _setLocation,
+                          ),
                           right: 0,
                           top: 0,
                           bottom: 0,
-                        )
+                        ),
                       ],
                     ),
                     SizedBox(height: 10),
@@ -154,12 +156,27 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  Future<void> _choseImage(BuildContext context) async {
+  Future<void> _choseImage() async {
     await showDialog<String>(
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
         return ProfilePicDialog();
+      },
+    ).then((result) {
+      setState(() {
+        _tempUrl = result ?? _tempUrl;
+      });
+    });
+  }
+
+  Future<void> _setLocation() async {
+
+    await showDialog<String>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return MapDialog();
       },
     ).then((result) {
       setState(() {

@@ -92,21 +92,21 @@ class _ProfilePicDialog extends State<ProfilePicDialog> {
 
   Future<void> _cropImage() async {
     await ImageCropper.cropImage(
-            sourcePath: _image.path,
-            cropStyle: CropStyle.circle,
-            compressFormat: ImageCompressFormat.jpg,
-            aspectRatioPresets: [
-              CropAspectRatioPreset.square,
-            ],
-            androidUiSettings: AndroidUiSettings(
-                toolbarTitle: 'Recortar foto de perfil',
-                toolbarColor: Theme.of(context).accentColor,
-                toolbarWidgetColor: Colors.white,
-                initAspectRatio: CropAspectRatioPreset.square,
-                lockAspectRatio: true),
-            maxWidth: 350,
-            maxHeight: 350)
-        .then((cropped) {
+      sourcePath: _image.path,
+      cropStyle: CropStyle.circle,
+      compressFormat: ImageCompressFormat.jpg,
+      aspectRatioPresets: [
+        CropAspectRatioPreset.square,
+      ],
+      maxWidth: 350,
+      maxHeight: 350,
+      androidUiSettings: AndroidUiSettings(
+          toolbarTitle: 'Recortar foto de perfil',
+          toolbarColor: Theme.of(context).accentColor,
+          toolbarWidgetColor: Colors.white,
+          initAspectRatio: CropAspectRatioPreset.square,
+          lockAspectRatio: true),
+    ).then((cropped) {
       if (cropped != null) {
         setState(() {
           _image = cropped ?? _image;
