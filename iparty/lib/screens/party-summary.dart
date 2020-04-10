@@ -5,11 +5,10 @@ import '../models/party.dart';
 
 class PartySummaryScreen extends StatelessWidget {
   static final routeName = '/party-summary';
-  Party _party;
 
   @override
   Widget build(BuildContext context) {
-    _party = ModalRoute.of(context).settings.arguments;
+    final Party _party = ModalRoute.of(context).settings.arguments;
     return Scaffold(
       appBar: AppBar(
         title: Text(_party.title),
@@ -84,8 +83,11 @@ class PartySummaryScreen extends StatelessWidget {
                       padding: const EdgeInsets.all(8.0),
                       child: Column(
                         children: <Widget>[
-                          Text('Plazas ocupadas: ',
-                              style: Theme.of(context).textTheme.title, textAlign: TextAlign.left,),
+                          Text(
+                            'Plazas ocupadas: ',
+                            style: Theme.of(context).textTheme.title,
+                            textAlign: TextAlign.left,
+                          ),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Row(

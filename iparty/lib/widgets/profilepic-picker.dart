@@ -1,7 +1,4 @@
 import 'dart:async';
-import 'dart:ui' as ui;
-
-import 'package:image/image.dart' as Img;
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';

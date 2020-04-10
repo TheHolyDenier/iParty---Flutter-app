@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:iparty/models/user.dart';
 import 'package:iparty/providers/users.dart';

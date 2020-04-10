@@ -6,8 +6,8 @@ class PartyDetailsWidget extends StatelessWidget {
   PartyDetailsWidget(this._party);
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return Wrap( // TODO: ROW
+//      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
         Icon(Icons.location_on),
         Text(_party.headquarter),
