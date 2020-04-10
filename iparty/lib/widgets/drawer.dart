@@ -49,15 +49,22 @@ class _MyDrawerState extends State<MyDrawer> {
                                   : MyImageAvatarCircle(user.imageUrl, true),
                             ),
                             SizedBox(width: 10),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                  user.displayName,
-                                  overflow: TextOverflow.fade,
-                                ),
-                                Text(user.email, overflow: TextOverflow.fade),
-                              ],
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Text(
+                                    user.displayName,
+                                    overflow: TextOverflow.fade,
+                                    softWrap: false,
+                                  ),
+                                  Text(
+                                    user.email,
+                                    overflow: TextOverflow.fade,
+                                    softWrap: false,
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -102,4 +109,3 @@ class _MyDrawerState extends State<MyDrawer> {
     );
   }
 }
-

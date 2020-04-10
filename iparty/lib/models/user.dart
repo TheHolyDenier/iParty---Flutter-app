@@ -2,23 +2,23 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class User {
-  final String uid;
-  final String displayName;
-  final String email;
-  String imageUrl;
-  String bio;
-  String location;
-  String filters;
+  final String uid, displayName, email;
+  String imageUrl, bio;
+  double latitude, longitude, km;
+  bool rpg, table, safe;
 
-  User({
-    @required this.uid,
-    @required this.email,
-    @required this.displayName,
-    this.imageUrl,
-    this.bio,
-    this.location,
-    this.filters,
-  });
+  User(
+      {@required this.uid,
+      @required this.email,
+      @required this.displayName,
+      this.imageUrl = '',
+      this.bio = '',
+      this.latitude = 40.974737,
+      this.longitude = -5.672455,
+      this.km = 1.0,
+      this.rpg = true,
+      this.table = true,
+      this.safe = true});
 
   factory User.fromFirestore(DocumentSnapshot doc) {
     Map data = doc.data;
@@ -28,8 +28,16 @@ class User {
       email: data['email'],
       imageUrl: data['imageUrl'] ?? '',
       bio: data['bio'] ?? '',
-      location: data['location'] ?? '',
-      filters: data['filters'] ?? '',
+      latitude: data['latitude'] != null
+          ? double.tryParse(data['latitude'])
+          : 40.974737,
+      longitude: data['longitude'] != null
+          ? double.tryParse(data['longitude'])
+          : -5.672455,
+      km: data['km'] != null ? double.tryParse(data['km']) : 1.0,
+      rpg: data['rpg'] != null ? data['rpg'] == '1' : true,
+      table: data['table'] != null ? data['table'] == '1' : true,
+      safe: data['safe'] != null ? data['safe'] == '1' : true,
     );
   }
 
@@ -40,8 +48,12 @@ class User {
       'displayName': this.displayName,
       'imageUrl': this.imageUrl,
       'bio': this.bio,
-      'location': this.location,
-      'filters': this.filters,
+      'latitude': this.latitude,
+      'longitude': this.longitude,
+      'km': this.km,
+      'rpg': this.rpg,
+      'table': this.table,
+      'safe': this.safe,
     };
   }
 }

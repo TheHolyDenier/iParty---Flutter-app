@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../models/user.dart';
 
@@ -11,10 +12,25 @@ class UsersProvider with ChangeNotifier {
 
   User get activeUser => _activeUser;
 
-  updateActiveUser({String bio, String imageUrl}) {
+  updateActiveUser(
+      {String bio = '',
+      String imageUrl = '',
+      LatLng latLng,
+      double km = 1.0,
+      bool rpg = true,
+      bool table = true,
+      bool safe = true}) {
     _activeUser.bio = bio;
     _activeUser.imageUrl = imageUrl;
-    notifyListeners(); 
+    if (latLng != null) {
+      _activeUser.latitude = latLng.latitude;
+      _activeUser.longitude = latLng.longitude;
+    }
+    _activeUser.km = km;
+    _activeUser.rpg = rpg;
+    _activeUser.table = table;
+    _activeUser.safe = safe;
+    notifyListeners();
   }
 
   Map<String, User> get users => {..._users};
@@ -27,6 +43,7 @@ class UsersProvider with ChangeNotifier {
       var doc = _db.collection('users').document(uid);
 
       doc.get().then((doc) {
+
         if (doc.exists) {
           _users.putIfAbsent(uid, () => User.fromFirestore(doc));
           if (active) _activeUser = User.fromFirestore(doc);
