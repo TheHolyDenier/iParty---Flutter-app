@@ -8,8 +8,8 @@ class MapDialog extends StatefulWidget {
 }
 
 class _MapDialogState extends State<MapDialog> {
-  bool searchLoc = false;
-  bool _searchingByAddress = false;
+  bool _searchLoc = false;
+  bool _searchingByAddress = true;
   LatLng _center = const LatLng(40.974737, -5.672455);
   GoogleMapController _mapController;
   Map<MarkerId, Marker> _marker = <MarkerId, Marker>{};
@@ -25,8 +25,9 @@ class _MapDialogState extends State<MapDialog> {
     super.dispose();
   }
 
+//  Search for current location
   _getCurrentLocation() async {
-    if (!searchLoc) {
+    if (!_searchLoc) {
       await Geolocator()
           .getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
           .then((Position position) {
@@ -34,10 +35,11 @@ class _MapDialogState extends State<MapDialog> {
         _moveMarker(_center);
       });
 
-      searchLoc = true;
+      _searchLoc = true;
     }
   }
 
+//  Moves camera to current location and sets marker
   void _moveMarker(LatLng position) {
     _mapController.animateCamera(CameraUpdate.newCameraPosition(
       CameraPosition(target: position, zoom: _zoom),
@@ -65,7 +67,6 @@ class _MapDialogState extends State<MapDialog> {
     _getCurrentLocation();
     return Scaffold(
         appBar: AppBar(
-          title: Text("Base de operaciones"),
           actions: <Widget>[
             FlatButton(
               child: Icon(Icons.done),
@@ -75,6 +76,10 @@ class _MapDialogState extends State<MapDialog> {
                       '${_marker[_markerId].position.latitude}_${_marker[_markerId].position.longitude}'),
             )
           ],
+          title: FittedBox(
+            fit: BoxFit.fitWidth,
+            child: Text('Base de operaciones'),
+          ),
         ),
         body: Stack(
           children: <Widget>[
@@ -93,58 +98,67 @@ class _MapDialogState extends State<MapDialog> {
                 onCameraMove: _onCameraMove,
               ),
             ),
-            Positioned(
-              top: 0,
-              right: _searchingByAddress ? 0 : (double.infinity),
-              left: 0,
-              child: Container(
-                height: 60,
-                padding: EdgeInsets.all(8),
-                child: TextField(
-                  controller: _searchAddressController,
-                  onSubmitted: (_) => _searchByAddress(),
-//                    onChanged: onTextChange,
-                  decoration: InputDecoration(
-                      hintText: 'Calle, número, código postal...',
-                      hintStyle: TextStyle(color: Colors.black),
-                      fillColor: Colors.black.withOpacity(0.1),
-                      filled: true,
-                      suffixIcon: _searchingByAddress
-                          ? IconButton(
-                              icon: Icon(Icons.cancel),
-                              onPressed: () {
-                                setState(() => _searchingByAddress = false);
-                                _searchAddressController.text = '';
-                              },
-                            )
-                          : null,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none),
-                      contentPadding: EdgeInsets.only(left: 35)),
-                ),
-              ),
-            ),
-            FloatingActionButton(
-              child: Icon(Icons.search),
-              onPressed: () {
-                if (!_searchingByAddress) {
-                  setState(() => _searchingByAddress = true);
-                } else {
-                  _searchByAddress();
-                }
-              },
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              focusElevation: 0,
-              hoverElevation: 0,
-              highlightElevation: 0,
-              disabledElevation: 0,
-            ),
+            _widgetSearchBar(),
+            _widgetSearchButton(),
           ],
         ));
   }
 
+  FloatingActionButton _widgetSearchButton() {
+    return FloatingActionButton(
+            child: Icon(Icons.search),
+            onPressed: () {
+              if (!_searchingByAddress) {
+                setState(() => _searchingByAddress = true);
+              } else {
+                _searchByAddress();
+              }
+            },
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            focusElevation: 0,
+            hoverElevation: 0,
+            highlightElevation: 0,
+            disabledElevation: 0,
+          );
+  }
+
+  Positioned _widgetSearchBar() {
+    return Positioned(
+            top: 0,
+            right: _searchingByAddress ? 0 : (double.infinity),
+            left: 0,
+            child: Container(
+              height: 60,
+              padding: EdgeInsets.all(8),
+              child: TextField(
+                controller: _searchAddressController,
+                onSubmitted: (_) => _searchByAddress(),
+//                    onChanged: onTextChange,
+                decoration: InputDecoration(
+                    hintText: 'Calle, número, código postal...',
+                    hintStyle: TextStyle(color: Colors.black),
+                    fillColor: Colors.black.withOpacity(0.1),
+                    filled: true,
+                    suffixIcon: _searchingByAddress
+                        ? IconButton(
+                            icon: Icon(Icons.cancel),
+                            onPressed: () {
+                              setState(() => _searchingByAddress = false);
+                              _searchAddressController.text = '';
+                            },
+                          )
+                        : null,
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide.none),
+                    contentPadding: EdgeInsets.only(left: 35)),
+              ),
+            ),
+          );
+  }
+
+//  Searches lat/long by address
   void _searchByAddress() async {
     String address = _searchAddressController.text;
     await Geolocator()

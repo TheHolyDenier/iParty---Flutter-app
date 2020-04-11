@@ -21,7 +21,7 @@ class UsersProvider with ChangeNotifier {
       bool table = true,
       bool safe = true,
       bool online = true}) {
-    _activeUser.bio = bio ?? '';
+    _activeUser.bio = (bio != null && bio.isNotEmpty) ? bio : '';
     _activeUser.imageUrl = imageUrl ?? '';
     if (latLng != null) {
       _activeUser.latitude = latLng.latitude;

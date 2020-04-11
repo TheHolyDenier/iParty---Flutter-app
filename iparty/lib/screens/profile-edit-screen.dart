@@ -59,26 +59,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             child: Column(
           children: <Widget>[
             SizedBox(height: 20),
-            Stack(
-              children: [
-                Container(
-                    height: 200,
-                    width: 200,
-                    child: (_imageUrl == '' && _tempUrl == '')
-                        ? MyTextAvatarCircle(_user.displayName[0].toUpperCase())
-                        : MyImageAvatarCircle(
-                            _tempUrl == '' ? _imageUrl : _tempUrl,
-                            _tempUrl == '')),
-                Positioned(
-                  bottom: 10,
-                  right: 10,
-                  child: FloatingActionButton(
-                    onPressed: () => _choseImage(),
-                    child: Icon(Icons.photo_camera, color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
+            _widgetProfileImage(),
             Padding(
               padding: EdgeInsets.only(
                   top: 20.0,
@@ -88,38 +69,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: Form(
                 child: Column(
                   children: <Widget>[
-                    TextFormField(
-                      controller: _controllerBio,
-                      decoration: InputDecoration(
-                        icon: Icon(Icons.edit),
-                        labelText: 'Sobre ti',
-//                        suffix: Text('${_controllerBio.text.length ?? 0}/250'),
-                      ),
-                      maxLines: 1,
-                      textInputAction: TextInputAction.done,
-                      maxLength: 250,
-                    ),
-                    Stack(
-                      children: <Widget>[
-                        TextFormField(
-                            enabled: false,
-                            controller: _controllerGeo,
-                            decoration: InputDecoration(
-                                contentPadding: EdgeInsets.only(right: 45.0),
-                                icon: Icon(Icons.map),
-                                labelText: 'Base de operaciones')),
-                        Positioned(
-                          child: IconButton(
-                            icon: Icon(Icons.location_searching,
-                                color: Theme.of(context).accentColor),
-                            onPressed: _setLocation,
-                          ),
-                          right: 0,
-                          top: 0,
-                          bottom: 0,
-                        ),
-                      ],
-                    ),
+                    _widgetBio(), // Bio Widget
+                    _widgetGeo(context), // Geo Widget
                     SizedBox(height: 10),
                     Container(
                       padding: const EdgeInsets.all(8.0),
@@ -136,73 +87,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   'Filtros:',
                                   textAlign: TextAlign.left,
                                 ),
-                                Center(
-                                  child: Wrap(
-                                    crossAxisAlignment:
-                                        WrapCrossAlignment.center,
-                                    alignment: WrapAlignment.center,
-                                    spacing: 10.0,
-                                    runSpacing: 5.0,
-                                    children: <Widget>[
-                                      ChoiceChip(
-                                        label: Text('Online'),
-                                        selected: _online,
-                                        onSelected: (_) {
-                                          setState(() {
-                                            _online = !_online;
-                                          });
-                                        },
-                                      ),
-                                      ChoiceChip(
-                                        label: Text('Rol'),
-                                        selected: _rpg,
-                                        onSelected: (_) {
-                                          setState(() {
-                                            _rpg = !_rpg;
-                                          });
-                                        },
-                                      ),
-                                      ChoiceChip(
-                                        label: Text('Mesa'),
-                                        selected: _tableGames,
-                                        onSelected: (_) {
-                                          setState(() {
-                                            _tableGames = !_tableGames;
-                                          });
-                                        },
-                                      ),
-                                      ChoiceChip(
-                                        label: Text('Espacio seguro'),
-                                        selected: _safeSpace,
-                                        onSelected: (_) {
-                                          setState(() {
-                                            _safeSpace = !_safeSpace;
-                                          });
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  width: double.infinity,
-                                  child: TextField(
-                                    controller: _kmController,
-                                    onChanged: (_) {
-                                      _checkErroKm();
-                                    },
-                                    decoration: new InputDecoration(
-                                        labelText:
-                                            'Distancia máxima de partidas: ',
-                                        suffix: Text('km'),
-                                        errorText: _errorsKm == ErrorsKm.ok
-                                            ? null
-                                            : _errorsKm == ErrorsKm.notNumber
-                                                ? 'Introduzca un número válido'
-                                                : 'La distancia mínima es 0km'),
-                                    keyboardType:
-                                        TextInputType.numberWithOptions(),
-                                  ),
-                                ),
+                                _widgetFiltersChips(), // Chips
+                                _widgetKm(), // Km
                               ],
                             ),
                           ),
@@ -213,11 +99,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         _statusUpload == StatusUpload.Ok)
                       Container(
                         child: Text(
-                          _statusUpload == StatusUpload.Ok
+                          _statusUpload != StatusUpload.Ok
                               ? 'Perfil actualizado.'
-                              : 'Ha habido un error. Vuelva a intentarlo más tarde.',
+                              : 'Ha habido un error',
                           style: TextStyle(
-                              color: _statusUpload == StatusUpload.Ok
+                              color: _statusUpload != StatusUpload.Ok
                                   ? Colors.green
                                   : Theme.of(context).errorColor),
                         ),
@@ -228,6 +114,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           CircularProgressIndicator(),
+                          SizedBox(width: 5.0),
                           Text('Subiendo...'),
                         ],
                       )),
@@ -247,61 +134,207 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
+  Container _widgetKm() {
+    return Container(
+      width: double.infinity,
+      child: TextField(
+        controller: _kmController,
+        onChanged: (_) {
+          _checkErroKm();
+        },
+        decoration: new InputDecoration(
+            labelText: 'Distancia máxima de partidas: ',
+            suffix: Text('km'),
+            errorText: _errorsKm == ErrorsKm.ok
+                ? null
+                : _errorsKm == ErrorsKm.notNumber
+                    ? 'Introduzca un número válido'
+                    : 'La distancia mínima es 0km'),
+        keyboardType: TextInputType.numberWithOptions(),
+      ),
+    );
+  }
+
+  Center _widgetFiltersChips() {
+    return Center(
+      child: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        alignment: WrapAlignment.center,
+        spacing: 10.0,
+        runSpacing: 5.0,
+        children: <Widget>[
+          ChoiceChip(
+            label: Text('Online'),
+            selected: _online,
+            onSelected: (_) {
+              setState(() {
+                _online = !_online;
+              });
+            },
+          ),
+          ChoiceChip(
+            label: Text('Rol'),
+            selected: _rpg,
+            onSelected: (_) {
+              setState(() {
+                _rpg = !_rpg;
+              });
+            },
+          ),
+          ChoiceChip(
+            label: Text('Mesa'),
+            selected: _tableGames,
+            onSelected: (_) {
+              setState(() {
+                _tableGames = !_tableGames;
+              });
+            },
+          ),
+          ChoiceChip(
+            label: Text('Espacio seguro'),
+            selected: _safeSpace,
+            onSelected: (_) {
+              setState(() {
+                _safeSpace = !_safeSpace;
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Stack _widgetGeo(BuildContext context) {
+    return Stack(
+      children: <Widget>[
+        TextFormField(
+          enabled: false,
+          controller: _controllerGeo,
+          decoration: InputDecoration(
+              contentPadding: EdgeInsets.only(right: 45.0),
+              icon: Icon(Icons.map),
+              labelText: 'Base de operaciones'),
+        ),
+        Positioned(
+          child: IconButton(
+            icon: Icon(Icons.location_searching,
+                color: Theme.of(context).accentColor),
+            onPressed: _setLocation,
+          ),
+          right: 0,
+          top: 0,
+          bottom: 0,
+        ),
+      ],
+    );
+  }
+
+  TextFormField _widgetBio() {
+    return TextFormField(
+      controller: _controllerBio,
+      decoration: InputDecoration(
+        icon: Icon(Icons.edit),
+        labelText: 'Sobre ti',
+//                        suffix: Text('${_controllerBio.text.length ?? 0}/250'),
+      ),
+      maxLines: 1,
+      textInputAction: TextInputAction.done,
+      maxLength: 250,
+    );
+  }
+
+  Stack _widgetProfileImage() {
+    return Stack(
+      children: [
+        Container(
+            height: 200,
+            width: 200,
+            child: (_imageUrl == '' && _tempUrl == '')
+                ? MyTextAvatarCircle(_user.displayName[0].toUpperCase())
+                : MyImageAvatarCircle(
+                    _tempUrl == '' ? _imageUrl : _tempUrl, _tempUrl == '')),
+        Positioned(
+          bottom: 10,
+          right: 10,
+          child: FloatingActionButton(
+            onPressed: () => _choseImage(),
+            child: Icon(Icons.photo_camera, color: Colors.white),
+          ),
+        ),
+      ],
+    );
+  }
+
   _saveData() async {
     setState(() {
       _statusUpload = StatusUpload.Uploading;
     });
     var url;
     if (_tempUrl != '') {
-      final FirebaseStorage _storage = FirebaseStorage(
-          storageBucket: 'gs://iparty-goblin-d1e76.appspot.com');
-
-      /// Starts an upload task
-      String filePath = 'images/profile/${_user.uid}.jpg';
-      final ref = _storage.ref().child(filePath);
-      ref.putFile(File(_tempUrl));
-      url = await ref.getDownloadURL() as String;
+      url = await _uploadImage(url);
     } else {
       url = _imageUrl;
     }
 
-    try {
-      Firestore.instance.collection('users').document(_user.uid).updateData({
-        'imageUrl': url,
-        'bio': _controllerBio.text,
-        'latitude': _latLng.latitude.toString(),
-        'longitude': _latLng.longitude.toString(),
-        'km': _kmController.text.toString(),
-        'rpg': _rpg ? '1' : '0',
-        'table': _tableGames ? '1' : '0',
-        'safe': _safeSpace ? '1' : '0',
-        'online': _online ? '1' : '0',
-      });
-      var provider = Provider.of<UsersProvider>(context, listen: false);
-      provider.updateActiveUser(
-          bio: _controllerBio.text ?? '',
-          imageUrl: url ?? '',
-          km: _kmController.text != null
-              ? double.parse(_kmController.text) >= 1.0
-                  ? double.parse(_kmController.text)
-                  : 0.0
-              : 0.0,
-          latLng: _latLng,
-          online: _online,
-          rpg: _rpg,
-          safe: _safeSpace,
-          table: _tableGames);
+//    try {
+//      Updates Firebase
+    Firestore.instance.collection('users').document(_user.uid).updateData({
+      'imageUrl': url,
+      'bio': _controllerBio.text,
+      'latitude': _latLng.latitude.toString(),
+      'longitude': _latLng.longitude.toString(),
+      'km': _kmController.text.toString(),
+      'rpg': _rpg ? '1' : '0',
+      'table': _tableGames ? '1' : '0',
+      'safe': _safeSpace ? '1' : '0',
+      'online': _online ? '1' : '0',
+    }).then((_) {
+//      Updates User provider
+      _updateProvider(url);
+//      Sets ok message
       setState(() {
         _statusUpload = StatusUpload.Ok;
       });
-    } on Firestore catch (error) {
-      print(error.toString());
+    }).catchError((error) {
+//    } on StorageError catch (error) {
+      // Not ok
       setState(() {
         _statusUpload = StatusUpload.Error;
       });
-    }
+      print(error.toString());
+    });
   }
 
+  void _updateProvider(url) {
+    var provider = Provider.of<UsersProvider>(context, listen: false);
+    provider.updateActiveUser(
+        bio: _controllerBio.text ?? '',
+        imageUrl: url ?? '',
+        km: _kmController.text != null
+            ? double.parse(_kmController.text) >= 1.0
+                ? double.parse(_kmController.text)
+                : 0.0
+            : 0.0,
+        latLng: _latLng,
+        online: _online,
+        rpg: _rpg,
+        safe: _safeSpace,
+        table: _tableGames);
+  }
+
+  Future _uploadImage(url) async {
+    final FirebaseStorage _storage =
+        FirebaseStorage(storageBucket: 'gs://iparty-goblin-d1e76.appspot.com');
+
+    // Starts an upload task
+    String filePath = 'images/profile/${_user.uid}.jpg';
+    final ref = _storage.ref().child(filePath);
+    ref.putFile(File(_tempUrl));
+    url = await ref.getDownloadURL() as String;
+    return url;
+  }
+
+//  Fires dialog to chose image, updates tempUrl if needed
   Future<void> _choseImage() async {
     await showDialog<String>(
       context: context,
@@ -316,6 +349,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     });
   }
 
+//  Check if KM is alright
   _checkErroKm() {
     if (_kmController.text.isEmpty) {
       _errorsKm = ErrorsKm.ok;
@@ -328,14 +362,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+//  Shows dialog and, when it's closed, translates de params to lat/long
   Future<void> _setLocation() async {
     await showDialog<String>(
+      // Shows dialog
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
         return MapDialog();
       },
     ).then((result) async {
+      // Translates address
       if (result != null) {
         _latLng = LatLng(double.parse(result.split('_')[0]),
             double.parse(result.split('_')[1]));
@@ -344,6 +381,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     });
   }
 
+// Searches address of lat/long
   _searchAddress() async {
     await Geolocator()
         .placemarkFromCoordinates(_latLng.latitude, _latLng.longitude)
@@ -353,6 +391,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     });
   }
 
+//  Search in User's provider for active user and update fields with that data if exists
   void _searchActiveUser() {
     var provider = Provider.of<UsersProvider>(context, listen: false);
     setState(() {
