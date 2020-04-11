@@ -21,20 +21,21 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 enum ErrorsKm { ok, notNumber, outBounds }
+enum StatusUpload { NaN, Uploading, Ok, Error }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   User _user;
-  var _imageUrl = '';
+  var _imageUrl;
   var _tempUrl = '';
+
+  LatLng _latLng;
+  bool _rpg, _tableGames, _safeSpace, _online;
+  ErrorsKm _errorsKm = ErrorsKm.ok;
+  StatusUpload _statusUpload = StatusUpload.NaN;
+
   final _controllerBio = TextEditingController();
   final _controllerGeo = TextEditingController();
   final _kmController = TextEditingController();
-  LatLng _latLng;
-  bool _rpg = true;
-  bool _tableGames = true;
-  bool _safeSpace = true;
-  bool _online = true;
-  ErrorsKm _errorsKm = ErrorsKm.ok;
 
   @override
   void dispose() {
@@ -91,7 +92,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       controller: _controllerBio,
                       decoration: InputDecoration(
                         icon: Icon(Icons.edit),
-                        hintText: 'Bio',
+                        labelText: 'Sobre ti',
 //                        suffix: Text('${_controllerBio.text.length ?? 0}/250'),
                       ),
                       maxLines: 1,
@@ -104,7 +105,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             enabled: false,
                             controller: _controllerGeo,
                             decoration: InputDecoration(
-                                icon: Icon(Icons.map), hintText: 'Dirección')),
+                                contentPadding: EdgeInsets.only(right: 45.0),
+                                icon: Icon(Icons.map),
+                                labelText: 'Base de operaciones')),
                         Positioned(
                           child: IconButton(
                             icon: Icon(Icons.location_searching,
@@ -195,7 +198,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                             ? null
                                             : _errorsKm == ErrorsKm.notNumber
                                                 ? 'Introduzca un número válido'
-                                                : 'La distancia mínima es 1km'),
+                                                : 'La distancia mínima es 0km'),
                                     keyboardType:
                                         TextInputType.numberWithOptions(),
                                   ),
@@ -206,8 +209,33 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                       ),
                     ),
+                    if (_statusUpload == StatusUpload.Error ||
+                        _statusUpload == StatusUpload.Ok)
+                      Container(
+                        child: Text(
+                          _statusUpload == StatusUpload.Ok
+                              ? 'Perfil actualizado.'
+                              : 'Ha habido un error. Vuelva a intentarlo más tarde.',
+                          style: TextStyle(
+                              color: _statusUpload == StatusUpload.Ok
+                                  ? Colors.green
+                                  : Theme.of(context).errorColor),
+                        ),
+                      ),
+                    if (_statusUpload == StatusUpload.Uploading)
+                      Center(
+                          child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          CircularProgressIndicator(),
+                          Text('Subiendo...'),
+                        ],
+                      )),
                     RaisedButton(
-                        onPressed: _errorsKm == ErrorsKm.ok ? _saveData : null,
+                        onPressed: (_errorsKm == ErrorsKm.ok &&
+                                _statusUpload != StatusUpload.Uploading)
+                            ? _saveData
+                            : null,
                         child: Text('guardar'))
                   ],
                 ),
@@ -220,14 +248,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   _saveData() async {
-    final FirebaseStorage _storage =
-        FirebaseStorage(storageBucket: 'gs://iparty-goblin-d1e76.appspot.com');
+    setState(() {
+      _statusUpload = StatusUpload.Uploading;
+    });
+    var url;
+    if (_tempUrl != '') {
+      final FirebaseStorage _storage = FirebaseStorage(
+          storageBucket: 'gs://iparty-goblin-d1e76.appspot.com');
 
-    /// Starts an upload task
-    String filePath = 'images/profile/${_user.uid}.jpg';
-    final ref = _storage.ref().child(filePath);
-    ref.putFile(File(_tempUrl));
-    final url = await ref.getDownloadURL() as String;
+      /// Starts an upload task
+      String filePath = 'images/profile/${_user.uid}.jpg';
+      final ref = _storage.ref().child(filePath);
+      ref.putFile(File(_tempUrl));
+      url = await ref.getDownloadURL() as String;
+    } else {
+      url = _imageUrl;
+    }
+
     try {
       Firestore.instance.collection('users').document(_user.uid).updateData({
         'imageUrl': url,
@@ -245,15 +282,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           bio: _controllerBio.text ?? '',
           imageUrl: url ?? '',
           km: _kmController.text != null
-              ? double.parse(_kmController.text)
-              : 1.0,
+              ? double.parse(_kmController.text) >= 1.0
+                  ? double.parse(_kmController.text)
+                  : 0.0
+              : 0.0,
           latLng: _latLng,
           online: _online,
           rpg: _rpg,
           safe: _safeSpace,
           table: _tableGames);
+      setState(() {
+        _statusUpload = StatusUpload.Ok;
+      });
     } on Firestore catch (error) {
       print(error.toString());
+      setState(() {
+        _statusUpload = StatusUpload.Error;
+      });
     }
   }
 
@@ -276,7 +321,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _errorsKm = ErrorsKm.ok;
     } else if (double.tryParse(_kmController.text) == null) {
       _errorsKm = ErrorsKm.notNumber;
-    } else if (double.parse(_kmController.text) < 1) {
+    } else if (double.parse(_kmController.text) < 0) {
       _errorsKm = ErrorsKm.outBounds;
     } else {
       _errorsKm = ErrorsKm.ok;
@@ -314,15 +359,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (provider != null) {
         _user = provider.activeUser;
       }
-      _imageUrl = _user.imageUrl;
-      _controllerBio.text = _user.bio;
+      _imageUrl = _user.imageUrl ?? '';
+      _controllerBio.text = _user.bio ?? '';
       _latLng = LatLng(_user.latitude, _user.longitude);
       _searchAddress();
-      _rpg = _user.rpg;
-      _tableGames = _user.table;
-      _safeSpace = _user.safe;
-      _kmController.text = _user.km.toString();
-      _online = _user.online;
+      _rpg = _user.rpg ?? true;
+      _tableGames = _user.table ?? true;
+      _safeSpace = _user.safe ?? true;
+      _kmController.text = _user.km.toString() ?? '0.0';
+      _online = _user.online ?? true;
     });
   }
 }

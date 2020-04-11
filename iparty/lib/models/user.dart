@@ -15,7 +15,7 @@ class User {
       this.bio = '',
       this.latitude = 40.974737,
       this.longitude = -5.672455,
-      this.km = 1.0,
+      this.km = 0.0,
       this.rpg = true,
       this.table = true,
       this.safe = true,
@@ -35,7 +35,7 @@ class User {
       longitude: data['longitude'] != null
           ? double.tryParse(data['longitude'])
           : -5.672455,
-      km: data['km'] != null ? double.tryParse(data['km']) : 1.0,
+      km: data['km'] != null ? double.tryParse(data['km']) : 0.0,
       rpg: data['rpg'] != null ? data['rpg'] == '1' : true,
       table: data['table'] != null ? data['table'] == '1' : true,
       safe: data['safe'] != null ? data['safe'] == '1' : true,

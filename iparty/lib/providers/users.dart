@@ -16,22 +16,22 @@ class UsersProvider with ChangeNotifier {
       {String bio = '',
       String imageUrl = '',
       LatLng latLng,
-      double km = 1.0,
+      double km = 0.0,
       bool rpg = true,
       bool table = true,
       bool safe = true,
       bool online = true}) {
-    _activeUser.bio = bio;
-    _activeUser.imageUrl = imageUrl;
+    _activeUser.bio = bio ?? '';
+    _activeUser.imageUrl = imageUrl ?? '';
     if (latLng != null) {
       _activeUser.latitude = latLng.latitude;
       _activeUser.longitude = latLng.longitude;
     }
-    _activeUser.km = km;
-    _activeUser.rpg = rpg;
-    _activeUser.table = table;
-    _activeUser.safe = safe;
-    _activeUser.online = online;
+    _activeUser.km = km ?? 0.0;
+    _activeUser.rpg = rpg ?? true;
+    _activeUser.table = table ?? true;
+    _activeUser.safe = safe ?? true;
+    _activeUser.online = online ?? true;
     notifyListeners();
   }
 
