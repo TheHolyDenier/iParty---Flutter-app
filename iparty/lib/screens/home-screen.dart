@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:iparty/providers/logged-user.dart';
-import 'package:iparty/providers/users.dart';
-import 'package:iparty/screens/party-summary.dart';
-import 'package:iparty/widgets/party-details-summary.dart';
+import 'package:iparty/screens/table-screen.dart';
+
 import 'package:provider/provider.dart';
 
-// import 'package:provider/provider.dart';
-
 import '../models/party.dart';
-// import '../providers/logged-user.dart';
 import '../widgets/drawer.dart';
+import '../providers/logged-user.dart';
+import '../providers/users.dart';
+import './party-summary.dart';
+import '../widgets/party-details-summary.dart';
 
 class HomeScreen extends StatefulWidget {
   static final routeName = '/home-screen';
@@ -47,9 +46,8 @@ class _HomeScreenState extends State<HomeScreen> {
           .getUId()
           .then((authUser) {
         users.addOneUser(authUser.uid, true);
-        
       });
-    } 
+    }
     _isInit = false;
   }
 
@@ -112,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         _party.title,
                                         overflow: TextOverflow.ellipsis,
                                         textAlign: TextAlign.right,
-                                        style: _themeOf.textTheme.title
+                                        style: _themeOf.textTheme.headline1
                                             .copyWith(
                                                 color: Colors.white, height: 1),
                                       ),
@@ -148,6 +146,11 @@ class _HomeScreenState extends State<HomeScreen> {
             return true;
           }),
       drawer: MyDrawer(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () =>
+            Navigator.of(context).pushNamed(NewTableScreen.routeName),
+        child: Icon(Icons.add),
+      ),
     );
   }
 }

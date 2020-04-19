@@ -399,7 +399,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     child: Center(
                       child: Text(
                         'iParty',
-                        style: Theme.of(context).textTheme.title,
+                        style: Theme.of(context).textTheme.headline1,
                       ),
                     ),
                   ),

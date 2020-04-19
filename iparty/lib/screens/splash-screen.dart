@@ -32,13 +32,13 @@ class SplashPage extends StatelessWidget {
                 Text('el tinder (platónico) para goblins'),
                 Text(
                   'iParty',
-                  style: themeOfContext.textTheme.title,
+                  style: themeOfContext.textTheme.headline1,
                 ),
               ],
             ),
         ),
         description: '¡Crea partidas, busca amigos, haz un plan!',
-        styleDescription: themeOfContext.textTheme.body1,
+        styleDescription: themeOfContext.textTheme.bodyText1,
         pathImage: 'assets/images/goblin_dice.png',
         backgroundColor: themeOfContext.accentColor,
       ),
@@ -49,13 +49,13 @@ class SplashPage extends StatelessWidget {
               children: <Widget>[
                 Text(
                   '¡Crea tu mesa! ',
-                  style: themeOfContext.textTheme.title,
+                  style: themeOfContext.textTheme.headline1,
                 ),
               ],
           ),
         ),
         description: '¡Elige juego, fecha y sitio!',
-        styleDescription: themeOfContext.textTheme.body1,
+        styleDescription: themeOfContext.textTheme.bodyText1,
         pathImage: 'assets/images/goblin_archer.png',
         backgroundColor: themeOfContext.hintColor,
       ),
@@ -66,7 +66,7 @@ class SplashPage extends StatelessWidget {
               children: <Widget>[
                 Text(
                   '¡O busca mesas cerca!',
-                  style: themeOfContext.textTheme.title,
+                  style: themeOfContext.textTheme.headline1,
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -74,7 +74,7 @@ class SplashPage extends StatelessWidget {
         ),
         description:
             'No te olvides de utilizar nuestros filtros para encontrar la mejor opción para ti :) ',
-        styleDescription: themeOfContext.textTheme.body1,
+        styleDescription: themeOfContext.textTheme.bodyText1,
         pathImage: 'assets/images/goblin_sword.png',
         backgroundColor: themeOfContext.primaryColor,
       ),

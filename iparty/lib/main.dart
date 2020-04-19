@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:iparty/screens/table-screen.dart';
 import 'package:provider/provider.dart';
 
 import './screens/auth-screen.dart';
@@ -53,12 +54,12 @@ class MyApp extends StatelessWidget {
           errorColor: Color.fromRGBO(237, 74, 56, 1),
           fontFamily: 'OpenSans',
           textTheme: TextTheme(
-            headline: TextStyle(fontSize: 72.0, fontWeight: FontWeight.bold),
-            title: TextStyle(
+            headline1: TextStyle(fontSize: 72.0, fontWeight: FontWeight.bold),
+            headline6: TextStyle(
                 fontSize: 32.0,
                 fontStyle: FontStyle.italic,
-                fontFamily: 'PTSansNar5row'),
-            body1: TextStyle(fontSize: 14.0),
+                fontFamily: 'PTSansNarrow'),
+            bodyText1: TextStyle(fontSize: 14.0),
           ),
           buttonTheme: ButtonThemeData(
             buttonColor: Color.fromRGBO(255, 182, 161, 1),
@@ -93,6 +94,7 @@ class MyApp extends StatelessWidget {
           AuthScreen.routeName: (context) => AuthScreen(),
           SplashPage.routeName: (context) => SplashPage(),
           HomeScreen.routeName: (context) => HomeScreen(),
+          NewTableScreen.routeName: (context) => NewTableScreen(),
           PartySummaryScreen.routeName: (context) => PartySummaryScreen(),
           EditProfileScreen.routeName: (context) => EditProfileScreen(),
         },

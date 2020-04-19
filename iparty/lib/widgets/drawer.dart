@@ -17,60 +17,64 @@ class MyDrawer extends StatefulWidget {
 class _MyDrawerState extends State<MyDrawer> {
   @override
   Widget build(BuildContext context) {
-    User user = Provider.of<UsersProvider>(context, listen: false).activeUser;
+    User user = Provider
+        .of<UsersProvider>(context, listen: false)
+        .activeUser;
 
     return Drawer(
       child: ListView(
         children: <Widget>[
           Container(
-            color: Theme.of(context).primaryColor,
+            color: Theme
+                .of(context)
+                .primaryColor,
             width: double.infinity,
             height: 150.0,
             child: user == null
                 ? Container(
-                    width: 50,
-                    height: 50,
-                    child: Center(child: CircularProgressIndicator()),
-                  )
+              width: 50,
+              height: 50,
+              child: Center(child: CircularProgressIndicator()),
+            )
                 : Column(
+              children: <Widget>[
+                Expanded(
+                  child: SizedBox(),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
                     children: <Widget>[
-                      Expanded(
-                        child: SizedBox(),
+                      Container(
+                        width: 60,
+                        height: 60,
+                        child: user.imageUrl.isEmpty
+                            ? MyTextAvatarCircle(user.displayName[0])
+                            : MyImageAvatarCircle(user.imageUrl, true),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Container(
-                              width: 60,
-                              height: 60,
-                              child: user.imageUrl.isEmpty
-                                  ? MyTextAvatarCircle(user.displayName[0])
-                                  : MyImageAvatarCircle(user.imageUrl, true),
+                            Text(
+                              user.displayName,
+                              overflow: TextOverflow.fade,
+                              softWrap: false,
                             ),
-                            SizedBox(width: 10),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Text(
-                                    user.displayName,
-                                    overflow: TextOverflow.fade,
-                                    softWrap: false,
-                                  ),
-                                  Text(
-                                    user.email,
-                                    overflow: TextOverflow.fade,
-                                    softWrap: false,
-                                  ),
-                                ],
-                              ),
+                            Text(
+                              user.email,
+                              overflow: TextOverflow.fade,
+                              softWrap: false,
                             ),
                           ],
                         ),
                       ),
                     ],
                   ),
+                ),
+              ],
+            ),
           ),
           ListTile(
             leading: Icon(Icons.home),

@@ -43,7 +43,7 @@ class PartySummaryScreen extends StatelessWidget {
                         "Ashish Rawat",
                         style: Theme.of(context)
                             .textTheme
-                            .title
+                            .headline1
                             .copyWith(color: Colors.white),
                       ),
                       trailing: Icon(
@@ -61,7 +61,7 @@ class PartySummaryScreen extends StatelessWidget {
                 children: <Widget>[
                   Text(
                     _party.title,
-                    style: Theme.of(context).textTheme.title,
+                    style: Theme.of(context).textTheme.headline1,
                   ),
                   Card(
                     child: Padding(
@@ -85,7 +85,7 @@ class PartySummaryScreen extends StatelessWidget {
                         children: <Widget>[
                           Text(
                             'Plazas ocupadas: ',
-                            style: Theme.of(context).textTheme.title,
+                            style: Theme.of(context).textTheme.headline1,
                             textAlign: TextAlign.left,
                           ),
                           Padding(
