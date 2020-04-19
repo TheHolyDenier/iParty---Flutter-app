@@ -4,6 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:iparty/widgets/chips-widget.dart';
 import 'package:iparty/widgets/geo-field.dart';
 import 'package:provider/provider.dart';
 import '../models/user.dart';
@@ -47,6 +48,31 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
+  _callback(ChipsOptions option, bool newValue) {
+    setState(() {
+      switch (option) {
+        case ChipsOptions.Online:
+          _online = newValue;
+          break;
+        case ChipsOptions.RPG:
+          _rpg = newValue;
+          break;
+        case ChipsOptions.SafeSpace:
+          _safeSpace = newValue;
+          break;
+        case ChipsOptions.TableGames:
+          _tableGames = newValue;
+          break;
+      }
+    });
+  }
+
+  _callbackGeo(LatLng newValue) {
+    setState(() {
+      _latLng = newValue;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_user == null) {
@@ -81,8 +107,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 child: Column(
                   children: <Widget>[
                     _widgetStatus(),
-                    _widgetBio(), // Bio Widget
-                    AddressWidget(_controllerGeo, _latLng), // Geo Widget
+                    _widgetBio(),
+                    // Bio Widget
+                    AddressWidget(_controllerGeo, _latLng, _callbackGeo),
+                    // Geo Widget
                     SizedBox(height: 10),
                     Container(
                       padding: const EdgeInsets.all(8.0),
@@ -99,8 +127,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   'Filtros:',
                                   textAlign: TextAlign.left,
                                 ),
-                                _widgetFiltersChips(), // Chips
-                                _widgetKm(), // Km
+                                ChipsWidget(
+                                    online: _online,
+                                    rpg: _rpg,
+                                    tableGames: _tableGames,
+                                    safeSpace: _safeSpace,
+                                    callback: _callback),
+                                // Chips
+                                _widgetKm(),
+                                // Km
                               ],
                             ),
                           ),
@@ -165,55 +200,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ? 'Introduzca un número válido'
                     : 'La distancia mínima es 0km'),
         keyboardType: TextInputType.numberWithOptions(),
-      ),
-    );
-  }
-
-  Center _widgetFiltersChips() {
-    return Center(
-      child: Wrap(
-        crossAxisAlignment: WrapCrossAlignment.center,
-        alignment: WrapAlignment.center,
-        spacing: 10.0,
-        runSpacing: 5.0,
-        children: <Widget>[
-          ChoiceChip(
-            label: Text('Online'),
-            selected: _online,
-            onSelected: (_) {
-              setState(() {
-                _online = !_online;
-              });
-            },
-          ),
-          ChoiceChip(
-            label: Text('Rol'),
-            selected: _rpg,
-            onSelected: (_) {
-              setState(() {
-                _rpg = !_rpg;
-              });
-            },
-          ),
-          ChoiceChip(
-            label: Text('Mesa'),
-            selected: _tableGames,
-            onSelected: (_) {
-              setState(() {
-                _tableGames = !_tableGames;
-              });
-            },
-          ),
-          ChoiceChip(
-            label: Text('Espacio seguro'),
-            selected: _safeSpace,
-            onSelected: (_) {
-              setState(() {
-                _safeSpace = !_safeSpace;
-              });
-            },
-          ),
-        ],
       ),
     );
   }
@@ -338,7 +324,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     });
   }
 
-//  Check if KM is alright
+//  Checks if KM is alright
   _checkErroKm() {
     if (_kmController.text.isEmpty) {
       _errorsKm = ErrorsKm.ok;

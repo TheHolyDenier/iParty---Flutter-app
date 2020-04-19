@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:iparty/widgets/chips-widget.dart';
 import 'package:iparty/widgets/geo-field.dart';
 
 class NewTableScreen extends StatefulWidget {
@@ -11,18 +12,45 @@ class NewTableScreen extends StatefulWidget {
 }
 
 class _NewTableScreenState extends State<NewTableScreen> {
-  var _lights = false;
+  var _game = false, _length = false;
+  LatLng _latLng;
   var _numberPlayers = RangeValues(2, 5);
   final _controllerGeo = TextEditingController();
   DateTime selectedDate;
   TimeOfDay selectedTime;
   var formatter = new DateFormat('dd-MM-yyyy');
+  bool _rpg = true, _tableGames = true, _safeSpace = true, _online = true;
 
   @override
   void dispose() {
     // TODO: implement dispose
     super.dispose();
     _controllerGeo.dispose();
+  }
+
+  void _callback(ChipsOptions option, bool newValue) {
+    setState(() {
+      switch (option) {
+        case ChipsOptions.Online:
+          _online = newValue;
+          break;
+        case ChipsOptions.RPG:
+          _rpg = newValue;
+          break;
+        case ChipsOptions.SafeSpace:
+          _safeSpace = newValue;
+          break;
+        case ChipsOptions.TableGames:
+          _tableGames = newValue;
+          break;
+      }
+    });
+  }
+
+  void _callbackGeo(LatLng newValue) {
+    setState(() {
+      _latLng = newValue;
+    });
   }
 
   @override
@@ -48,38 +76,77 @@ class _NewTableScreenState extends State<NewTableScreen> {
             ),
             Form(
               child: Padding(
-                padding: const EdgeInsets.all(15.0),
+                padding: const EdgeInsets.all(8.0),
                 child: Column(
                   children: <Widget>[
-                    Text(
-                        'Rellene la siguiente información para crear su actividad: '),
-                    TextFormField(
-                      decoration: InputDecoration(
-                          labelText: 'Nombre de la mesa',
-                          hintText:
-                              'Servirá para que otros usuarios la reconozcan'),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                          'Rellene la siguiente información para crear su actividad: '),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text('Tipo de mesa:'),
-                        Wrap(
-                          alignment: WrapAlignment.center,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: <Widget>[
-                            Text('Mesa'),
-                            Switch(
-                                value: _lights,
-                                onChanged: (bool value) {
-                                  setState(() {
-                                    _lights = value;
-                                  });
-                                }),
-                            Text('Rol'),
-                          ],
-                        ),
-                      ],
-                    ),
+                    Card(
+                        child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: <Widget>[
+                          Text('Información de la partida',
+                              style: Theme.of(context).textTheme.headline5),
+                          TextFormField(
+                            decoration: InputDecoration(
+                                labelText: 'Nombre de la mesa',
+                                hintText:
+                                    'Servirá para que otros usuarios la reconozcan'),
+                          ),
+                          ChipsWidget(
+                              online: _online,
+                              safeSpace: _safeSpace,
+                              callback: _callback,
+                              filter: false),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Text('Juego de:'),
+                              Wrap(
+                                alignment: WrapAlignment.center,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: <Widget>[
+                                  Text('mesa'),
+                                  Switch(
+                                      value: _game,
+                                      onChanged: (bool value) {
+                                        setState(() {
+                                          _game = value;
+                                        });
+                                      }),
+                                  Text('rol'),
+                                ],
+                              ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Text('Sesiones:'),
+                              Wrap(
+                                alignment: WrapAlignment.center,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: <Widget>[
+                                  Text('oneshot'),
+                                  Switch(
+                                      value: _length,
+                                      onChanged: (bool value) {
+                                        setState(() {
+                                          _length = value;
+                                        });
+                                      }),
+                                  Text('campaña'),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    )),
                     TextFormField(
                       decoration: InputDecoration(
                           labelText: 'Juego', hintText: '¿A qué vais a jugar?'),
@@ -90,7 +157,9 @@ class _NewTableScreenState extends State<NewTableScreen> {
                         Wrap(
                           children: <Widget>[
                             Icon(Icons.people),
-                            SizedBox(width: 3.0,),
+                            SizedBox(
+                              width: 3.0,
+                            ),
                             Text('Jugadores:'),
                           ],
                         ),
@@ -112,7 +181,8 @@ class _NewTableScreenState extends State<NewTableScreen> {
                         ),
                       ],
                     ),
-                    AddressWidget(_controllerGeo, LatLng(40.974737, -5.672455)),
+                    AddressWidget(_controllerGeo, LatLng(40.974737, -5.672455),
+                        _callbackGeo),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
@@ -138,8 +208,7 @@ class _NewTableScreenState extends State<NewTableScreen> {
                         )
                       ],
                     ),
-                    Text('Chips'),
-                    Text('Descripción'),
+                    Text('Descripciónespaci'),
                     Text('Una sesión/Más de una sesión'),
                   ],
                 ),

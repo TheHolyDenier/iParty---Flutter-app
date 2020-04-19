@@ -7,17 +7,21 @@ import 'map-dialog.dart';
 class AddressWidget extends StatefulWidget {
   final TextEditingController _controllerGeo;
   LatLng _latLng;
+  Function _callback;
 
-  AddressWidget(this._controllerGeo, this._latLng);
+  AddressWidget(this._controllerGeo, this._latLng, this._callback);
 
   @override
-  _AddressWidgetState createState() => _AddressWidgetState(_controllerGeo, _latLng);
+  _AddressWidgetState createState() =>
+      _AddressWidgetState(_controllerGeo, _latLng, _callback);
 }
 
 class _AddressWidgetState extends State<AddressWidget> {
   final TextEditingController _controllerGeo;
+  Function _callback;
   LatLng _latLng;
-  _AddressWidgetState(this._controllerGeo, this._latLng);
+
+  _AddressWidgetState(this._controllerGeo, this._latLng, this._callback);
 
   @override
   void initState() {
@@ -64,8 +68,11 @@ class _AddressWidgetState extends State<AddressWidget> {
     ).then((result) async {
       // Translates address
       if (result != null) {
-        _latLng = LatLng(double.parse(result.split('_')[0]),
-            double.parse(result.split('_')[1]));
+        setState(() {
+          _latLng = LatLng(double.parse(result.split('_')[0]),
+              double.parse(result.split('_')[1]));
+          _callback(_latLng);
+        });
         _searchAddress();
       }
     });
@@ -76,8 +83,10 @@ class _AddressWidgetState extends State<AddressWidget> {
     await Geolocator()
         .placemarkFromCoordinates(_latLng.latitude, _latLng.longitude)
         .then((address) {
-      _controllerGeo.text =
-      '${address[0].thoroughfare} ${address[0].name}, ${address[0].locality}';
+      setState(() {
+        _controllerGeo.text =
+            '${address[0].thoroughfare} ${address[0].name}, ${address[0].locality}';
+      });
     });
   }
 }
