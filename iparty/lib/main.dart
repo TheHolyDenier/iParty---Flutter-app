@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:iparty/screens/table-screen.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import './screens/auth-screen.dart';
 import './screens/home-screen.dart';
 import './screens/party-summary.dart';
 import './screens/profile-edit-screen.dart';
 import './screens/splash-screen.dart';
+import './screens/table-screen.dart';
 
 import './providers/logged-user.dart';
 import './providers/users.dart';
@@ -68,6 +69,16 @@ class MyApp extends StatelessWidget {
             backgroundColor: Colors.transparent,
           ),
         ),
+//        LANGUAGE
+        localizationsDelegates: [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
+        localeResolutionCallback: (_, supportedLocales) =>
+            supportedLocales.first,
+        supportedLocales: [
+          const Locale('es', 'ES'),
+        ],
         home: FutureBuilder<FirebaseUser>(
           future: Provider.of<AuthService>(context)
               .getUser(), //Comprueba si existe un usuario conectado

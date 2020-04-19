@@ -4,6 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:iparty/widgets/geo-field.dart';
 import 'package:provider/provider.dart';
 import '../models/user.dart';
 
@@ -52,7 +53,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _searchActiveUser();
     }
     return Scaffold(
-      appBar: AppBar(title: Text('Tu perfil')),
+      appBar: AppBar(
+        title: Text('Tu perfil'),
+        actions: <Widget>[
+          IconButton(
+              icon: Icon(Icons.save),
+              onPressed: (_errorsKm == ErrorsKm.ok &&
+                      _statusUpload != StatusUpload.Uploading)
+                  ? _saveData
+                  : null),
+        ],
+      ),
       drawer: MyDrawer(),
       body: SingleChildScrollView(
         child: Center(
@@ -69,8 +80,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: Form(
                 child: Column(
                   children: <Widget>[
+                    _widgetStatus(),
                     _widgetBio(), // Bio Widget
-                    _widgetGeo(context), // Geo Widget
+                    AddressWidget(_controllerGeo, _latLng), // Geo Widget
                     SizedBox(height: 10),
                     Container(
                       padding: const EdgeInsets.all(8.0),
@@ -95,35 +107,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                       ),
                     ),
-                    if (_statusUpload == StatusUpload.Error ||
-                        _statusUpload == StatusUpload.Ok)
-                      Container(
-                        child: Text(
-                          _statusUpload != StatusUpload.Ok
-                              ? 'Perfil actualizado.'
-                              : 'Ha habido un error',
-                          style: TextStyle(
-                              color: _statusUpload != StatusUpload.Ok
-                                  ? Colors.green
-                                  : Theme.of(context).errorColor),
-                        ),
-                      ),
-                    if (_statusUpload == StatusUpload.Uploading)
-                      Center(
-                          child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          CircularProgressIndicator(),
-                          SizedBox(width: 5.0),
-                          Text('Subiendo...'),
-                        ],
-                      )),
-                    RaisedButton(
-                        onPressed: (_errorsKm == ErrorsKm.ok &&
-                                _statusUpload != StatusUpload.Uploading)
-                            ? _saveData
-                            : null,
-                        child: Text('guardar'))
                   ],
                 ),
               ),
@@ -131,6 +114,37 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ],
         )),
       ),
+    );
+  }
+
+  Widget _widgetStatus() {
+    return Column(
+      children: <Widget>[
+        if (_statusUpload == StatusUpload.Error ||
+            _statusUpload == StatusUpload.Ok)
+          Container(
+            child: Text(
+              _statusUpload == StatusUpload.Ok
+                  ? 'Perfil actualizado.'
+                  : 'Ha habido un error',
+              style: TextStyle(
+                  color: _statusUpload == StatusUpload.Ok
+                      ? Colors.green
+                      : Theme.of(context).errorColor),
+            ),
+          ),
+        if (_statusUpload == StatusUpload.Uploading)
+          Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                CircularProgressIndicator(),
+                SizedBox(width: 5.0),
+                Text('Subiendo...'),
+              ],
+            ),
+          )
+      ],
     );
   }
 
@@ -201,31 +215,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Stack _widgetGeo(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        TextFormField(
-          enabled: false,
-          controller: _controllerGeo,
-          decoration: InputDecoration(
-              contentPadding: EdgeInsets.only(right: 45.0),
-              icon: Icon(Icons.map),
-              labelText: 'Base de operaciones'),
-        ),
-        Positioned(
-          child: IconButton(
-            icon: Icon(Icons.location_searching,
-                color: Theme.of(context).accentColor),
-            onPressed: _setLocation,
-          ),
-          right: 0,
-          top: 0,
-          bottom: 0,
-        ),
-      ],
     );
   }
 
@@ -362,35 +351,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-//  Shows dialog and, when it's closed, translates de params to lat/long
-  Future<void> _setLocation() async {
-    await showDialog<String>(
-      // Shows dialog
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        return MapDialog();
-      },
-    ).then((result) async {
-      // Translates address
-      if (result != null) {
-        _latLng = LatLng(double.parse(result.split('_')[0]),
-            double.parse(result.split('_')[1]));
-        _searchAddress();
-      }
-    });
-  }
-
-// Searches address of lat/long
-  _searchAddress() async {
-    await Geolocator()
-        .placemarkFromCoordinates(_latLng.latitude, _latLng.longitude)
-        .then((address) {
-      _controllerGeo.text =
-          '${address[0].thoroughfare} ${address[0].name}, ${address[0].locality}';
-    });
-  }
-
 //  Search in User's provider for active user and update fields with that data if exists
   void _searchActiveUser() {
     var provider = Provider.of<UsersProvider>(context, listen: false);
@@ -401,7 +361,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       _imageUrl = _user.imageUrl ?? '';
       _controllerBio.text = _user.bio ?? '';
       _latLng = LatLng(_user.latitude, _user.longitude);
-      _searchAddress();
+//      _searchAddress();
       _rpg = _user.rpg ?? true;
       _tableGames = _user.table ?? true;
       _safeSpace = _user.safe ?? true;
