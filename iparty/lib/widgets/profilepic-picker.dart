@@ -5,18 +5,26 @@ import 'package:image_cropper/image_cropper.dart';
 
 import 'package:image_picker/image_picker.dart';
 
-class ProfilePicDialog extends StatefulWidget {
+class PicDialog extends StatefulWidget {
+  final profilePic;
+
+  PicDialog({this.profilePic = true});
+
   @override
-  _ProfilePicDialog createState() => _ProfilePicDialog();
+  _ProfilePicDialog createState() => _ProfilePicDialog(profilePic);
 }
 
-class _ProfilePicDialog extends State<ProfilePicDialog> {
+class _ProfilePicDialog extends State<PicDialog> {
+  final _profilePic;
+
+  _ProfilePicDialog(this._profilePic);
+
   File _image;
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Imagen de perfil'),
+      title: Text(_profilePic ? 'Imagen de perfil' : 'Portada de la partida'),
       content: SingleChildScrollView(
         child: new Column(
           mainAxisSize: MainAxisSize.min,
@@ -26,7 +34,7 @@ class _ProfilePicDialog extends State<ProfilePicDialog> {
                   ? Text('Seleccione una imagen...')
                   : Container(
                       width: 200,
-                      height: 200,
+                      height: 125,
                       child: FittedBox(
                         child: Image.file(_image),
                         fit: BoxFit.cover,
@@ -90,15 +98,17 @@ class _ProfilePicDialog extends State<ProfilePicDialog> {
   Future<void> _cropImage() async {
     await ImageCropper.cropImage(
       sourcePath: _image.path,
-      cropStyle: CropStyle.circle,
+      cropStyle: CropStyle.rectangle,
       compressFormat: ImageCompressFormat.jpg,
       aspectRatioPresets: [
-        CropAspectRatioPreset.square,
+        CropAspectRatioPreset.ratio16x9,
       ],
-      maxWidth: 350,
-      maxHeight: 350,
+      maxWidth: 600,
+      maxHeight: 340,
       androidUiSettings: AndroidUiSettings(
-          toolbarTitle: 'Recortar foto de perfil',
+          toolbarTitle: _profilePic
+              ? 'Recortar foto de perfil'
+              : 'Recortar portada de tu partdia',
           toolbarColor: Theme.of(context).accentColor,
           toolbarWidgetColor: Colors.white,
           initAspectRatio: CropAspectRatioPreset.square,

@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:iparty/widgets/chips-widget.dart';
 import 'package:iparty/widgets/geo-field.dart';
+import 'package:iparty/widgets/profilepic-picker.dart';
 
 class NewTableScreen extends StatefulWidget {
   static final routeName = '/new-table';
@@ -20,6 +21,7 @@ class _NewTableScreenState extends State<NewTableScreen> {
   TimeOfDay selectedTime;
   var formatter = new DateFormat('dd-MM-yyyy');
   bool _rpg = true, _tableGames = true, _safeSpace = true, _online = true;
+  var _tempUrl = '';
 
   @override
   void dispose() {
@@ -70,9 +72,18 @@ class _NewTableScreenState extends State<NewTableScreen> {
           children: <Widget>[
             Container(
               width: double.infinity,
-              height: 150.0,
+              height: MediaQuery.of(context).size.width / 16 * 9,
               color: Theme.of(context).accentColor,
-              child: FittedBox(child: Icon(Icons.photo)),
+              child: GestureDetector(
+                onTap: _choseImage,
+                child: FittedBox(
+                    fit: _tempUrl == '' ? BoxFit.contain : BoxFit.cover,
+                    child: _tempUrl == ''
+                        ? Icon(Icons.photo)
+                        : Image(
+                            image: AssetImage(_tempUrl),
+                          )),
+              ),
             ),
             Form(
               child: Padding(
@@ -86,7 +97,7 @@ class _NewTableScreenState extends State<NewTableScreen> {
                     ),
                     Card(
                         child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(10.0),
                       child: Column(
                         children: <Widget>[
                           Text('Información de la partida',
@@ -97,11 +108,14 @@ class _NewTableScreenState extends State<NewTableScreen> {
                                 hintText:
                                     'Servirá para que otros usuarios la reconozcan'),
                           ),
-                          ChipsWidget(
-                              online: _online,
-                              safeSpace: _safeSpace,
-                              callback: _callback,
-                              filter: false),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10.0),
+                            child: ChipsWidget(
+                                online: _online,
+                                safeSpace: _safeSpace,
+                                callback: _callback,
+                                filter: false),
+                          ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
@@ -110,7 +124,12 @@ class _NewTableScreenState extends State<NewTableScreen> {
                                 alignment: WrapAlignment.center,
                                 crossAxisAlignment: WrapCrossAlignment.center,
                                 children: <Widget>[
-                                  Text('mesa'),
+                                  Container(
+                                      width: 50.0,
+                                      child: Text(
+                                        'mesa',
+                                        textAlign: TextAlign.right,
+                                      )),
                                   Switch(
                                       value: _game,
                                       onChanged: (bool value) {
@@ -118,7 +137,7 @@ class _NewTableScreenState extends State<NewTableScreen> {
                                           _game = value;
                                         });
                                       }),
-                                  Text('rol'),
+                                  Container(width: 50.0, child: Text('rol')),
                                 ],
                               ),
                             ],
@@ -131,7 +150,12 @@ class _NewTableScreenState extends State<NewTableScreen> {
                                 alignment: WrapAlignment.center,
                                 crossAxisAlignment: WrapCrossAlignment.center,
                                 children: <Widget>[
-                                  Text('oneshot'),
+                                  Container(
+                                      width: 50.0,
+                                      child: Text(
+                                        'única',
+                                        textAlign: TextAlign.right,
+                                      )),
                                   Switch(
                                       value: _length,
                                       onChanged: (bool value) {
@@ -139,77 +163,92 @@ class _NewTableScreenState extends State<NewTableScreen> {
                                           _length = value;
                                         });
                                       }),
-                                  Text('campaña'),
+                                  Container(width: 50.0, child: Text('varias')),
                                 ],
                               ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Text('Jugadores:'),
+                              Expanded(
+                                child: RangeSlider(
+                                  values: _numberPlayers,
+                                  min: 1,
+                                  max: 10,
+                                  onChanged: (RangeValues values) {
+                                    setState(() {
+                                      _numberPlayers = values;
+                                    });
+                                  },
+                                  divisions: 9,
+                                  labels: RangeLabels(
+                                      '${_numberPlayers.start.round()}',
+                                      '${_numberPlayers.end.round()}'),
+                                ),
+                              ),
+                            ],
+                          ),
+                          AddressWidget(_controllerGeo,
+                              LatLng(40.974737, -5.672455), _callbackGeo),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Text('Fecha y hora:'),
+                              Wrap(
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: <Widget>[
+                                  if (selectedDate != null)
+                                    Text('${formatter.format(selectedDate)}'),
+                                  IconButton(
+                                    onPressed: () => _selectDate(),
+                                    icon: Icon(Icons.calendar_today,
+                                        color: Theme.of(context).accentColor),
+                                  ),
+                                  if (selectedTime != null)
+                                    Text('${selectedTime.format(context)}'),
+                                  IconButton(
+                                    onPressed: () => _selectedTime(),
+                                    icon: Icon(Icons.access_time,
+                                        color: Theme.of(context).accentColor),
+                                  ),
+                                ],
+                              )
                             ],
                           ),
                         ],
                       ),
                     )),
-                    TextFormField(
-                      decoration: InputDecoration(
-                          labelText: 'Juego', hintText: '¿A qué vais a jugar?'),
+                    const SizedBox(
+                      height: 10.0,
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Wrap(
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Column(
                           children: <Widget>[
-                            Icon(Icons.people),
-                            SizedBox(
-                              width: 3.0,
+                            Text('Información adicional',
+                                style: Theme.of(context).textTheme.headline5),
+                            TextFormField(
+                              maxLength: 100,
+                              decoration: InputDecoration(
+                                  labelText: 'Juego',
+                                  hintText: '¿A qué vais a jugar?'),
                             ),
-                            Text('Jugadores:'),
+                            TextFormField(
+                              maxLines: 5,
+                              minLines: 1,
+                              maxLength: 500,
+                              decoration: InputDecoration(
+                                  labelText: 'Descripción',
+                                  hintText:
+                                      'Cuenta a tus jugadores qué vais a hacer'),
+                            ),
                           ],
                         ),
-                        Expanded(
-                          child: RangeSlider(
-                            values: _numberPlayers,
-                            min: 1,
-                            max: 10,
-                            onChanged: (RangeValues values) {
-                              setState(() {
-                                _numberPlayers = values;
-                              });
-                            },
-                            divisions: 9,
-                            labels: RangeLabels(
-                                '${_numberPlayers.start.round()}',
-                                '${_numberPlayers.end.round()}'),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                    AddressWidget(_controllerGeo, LatLng(40.974737, -5.672455),
-                        _callbackGeo),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text('Fecha y hora:'),
-                        Wrap(
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: <Widget>[
-                            if (selectedDate != null)
-                              Text('${formatter.format(selectedDate)}'),
-                            IconButton(
-                              onPressed: () => _selectDate(),
-                              icon: Icon(Icons.calendar_today,
-                                  color: Theme.of(context).accentColor),
-                            ),
-                            if (selectedTime != null)
-                              Text('${selectedTime.format(context)}'),
-                            IconButton(
-                              onPressed: () => _selectedTime(),
-                              icon: Icon(Icons.access_time,
-                                  color: Theme.of(context).accentColor),
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
-                    Text('Descripciónespaci'),
-                    Text('Una sesión/Más de una sesión'),
                   ],
                 ),
               ),
@@ -220,7 +259,7 @@ class _NewTableScreenState extends State<NewTableScreen> {
     );
   }
 
-  Future<Null> _selectDate() async {
+  void _selectDate() async {
     var now = DateTime.now();
     final DateTime picked = await showDatePicker(
         context: context,
@@ -233,7 +272,7 @@ class _NewTableScreenState extends State<NewTableScreen> {
       });
   }
 
-  _selectedTime() async {
+  void _selectedTime() async {
     final picked = await showTimePicker(
       initialTime: TimeOfDay.now(),
       context: context,
@@ -243,5 +282,22 @@ class _NewTableScreenState extends State<NewTableScreen> {
       setState(() {
         selectedTime = picked;
       });
+  }
+
+  //  Fires dialog to chose image, updates tempUrl if needed
+  void _choseImage() async {
+    await showDialog<String>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return PicDialog(
+          profilePic: false,
+        );
+      },
+    ).then((result) {
+      setState(() {
+        _tempUrl = result ?? _tempUrl;
+      });
+    });
   }
 }

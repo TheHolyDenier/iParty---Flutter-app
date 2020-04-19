@@ -310,12 +310,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
 //  Fires dialog to chose image, updates tempUrl if needed
-  Future<void> _choseImage() async {
+  void _choseImage() async {
     await showDialog<String>(
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
-        return ProfilePicDialog();
+        return PicDialog();
       },
     ).then((result) {
       setState(() {
