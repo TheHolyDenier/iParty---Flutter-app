@@ -8,8 +8,8 @@ class Party {
   String imageUrl;
   String summary;
   String game;
-  Map<String, int> players;
-  Map<String, String> playersUID;
+  Map<String, dynamic> players;
+  List<dynamic> playersUID;
   bool isRpg;
   bool isCampaign;
   bool isOnline;
@@ -42,7 +42,7 @@ class Party {
       imageUrl: data['imageUrl'] ?? '',
       summary: data['summary'] ?? '',
       players: data['players'],
-      playersUID: data['playersUID'] ?? Map(),
+      playersUID: data['playersUID'] ?? List(),
       isRpg: data['isRpg'] != null ? data['rpg'] == '1' : true,
       isCampaign: data['isCampaign'] != null ? data['isCampaign'] == '1' : true,
       isOnline: data['isOnline'] != null ? data['isOnline'] == '1' : true,
