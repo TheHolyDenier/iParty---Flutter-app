@@ -34,7 +34,7 @@ class _ProfilePicDialog extends State<PicDialog> {
                   ? Text('Seleccione una imagen...')
                   : Container(
                       width: 200,
-                      height: 125,
+                      height: _profilePic ? 200 : 200 / 16 * 9,
                       child: FittedBox(
                         child: Image.file(_image),
                         fit: BoxFit.cover,
