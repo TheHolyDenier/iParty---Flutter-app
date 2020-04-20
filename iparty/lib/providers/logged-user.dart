@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:iparty/models/user.dart';
 
 class AuthService with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -11,8 +12,8 @@ class AuthService with ChangeNotifier {
   }
 
   Future<FirebaseUser> getUId() async {
-    final FirebaseUser user = await getUser(); 
-    return user; 
+    final FirebaseUser user = await getUser();
+    return user;
   }
 
   Future logout() async {

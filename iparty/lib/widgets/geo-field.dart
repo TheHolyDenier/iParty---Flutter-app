@@ -27,7 +27,7 @@ class _AddressWidgetState extends State<AddressWidget> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _searchAddress();
+//    _searchAddress();
   }
 
   @override

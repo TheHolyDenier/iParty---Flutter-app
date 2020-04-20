@@ -1,19 +1,19 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:iparty/widgets/chips-widget.dart';
-import 'package:iparty/widgets/geo-field.dart';
+import 'package:iparty/models/enums.dart';
+import 'package:iparty/widgets/status-widget.dart';
 import 'package:provider/provider.dart';
-import '../models/user.dart';
 
+import '../models/user.dart';
 import '../providers/users.dart';
 import '../widgets/avatar-circles.dart';
 import '../widgets/drawer.dart';
 import '../widgets/profilepic-picker.dart';
-import '../widgets/map-dialog.dart';
+import '../widgets/chips-widget.dart';
+import '../widgets/geo-field.dart';
 
 class EditProfileScreen extends StatefulWidget {
   static final routeName = '/edit-profile';
@@ -23,7 +23,6 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 enum ErrorsKm { ok, notNumber, outBounds }
-enum StatusUpload { NaN, Uploading, Ok, Error }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   User _user;
@@ -106,7 +105,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: Form(
                 child: Column(
                   children: <Widget>[
-                    _widgetStatus(),
+                    StateWidget(_statusUpload),
                     _widgetBio(),
                     // Bio Widget
                     AddressWidget(_controllerGeo, _latLng, _callbackGeo),
@@ -149,37 +148,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ],
         )),
       ),
-    );
-  }
-
-  Widget _widgetStatus() {
-    return Column(
-      children: <Widget>[
-        if (_statusUpload == StatusUpload.Error ||
-            _statusUpload == StatusUpload.Ok)
-          Container(
-            child: Text(
-              _statusUpload == StatusUpload.Ok
-                  ? 'Perfil actualizado.'
-                  : 'Ha habido un error',
-              style: TextStyle(
-                  color: _statusUpload == StatusUpload.Ok
-                      ? Colors.green
-                      : Theme.of(context).errorColor),
-            ),
-          ),
-        if (_statusUpload == StatusUpload.Uploading)
-          Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                CircularProgressIndicator(),
-                SizedBox(width: 5.0),
-                Text('Subiendo...'),
-              ],
-            ),
-          )
-      ],
     );
   }
 
