@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:iparty/screens/loading-screen.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -90,14 +92,7 @@ class MyApp extends StatelessWidget {
               }
               return snapshot.hasData ? HomeScreen() : AuthScreen();
             } else {
-              return Scaffold(
-                body: Center(
-                  child: Container(
-                    child: CircularProgressIndicator(),
-                    alignment: Alignment(0.0, 0.0),
-                  ),
-                ),
-              );
+              return LoadingPage();
             }
           },
         ),

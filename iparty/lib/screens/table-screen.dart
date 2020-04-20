@@ -62,6 +62,8 @@ class _NewTableScreenState extends State<NewTableScreen> {
         case ChipsOptions.SafeSpace:
           _safeSpace = newValue;
           break;
+        default:
+          break;
       }
     });
   }

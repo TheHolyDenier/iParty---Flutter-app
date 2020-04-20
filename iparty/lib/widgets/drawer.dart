@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:iparty/models/user.dart';
 import 'package:iparty/providers/users.dart';
 import 'package:iparty/widgets/avatar-circles.dart';
@@ -34,7 +35,7 @@ class _MyDrawerState extends State<MyDrawer> {
                 ? Container(
               width: 50,
               height: 50,
-              child: Center(child: CircularProgressIndicator()),
+              child: Center(child: SpinKitCubeGrid()),
             )
                 : Column(
               children: <Widget>[

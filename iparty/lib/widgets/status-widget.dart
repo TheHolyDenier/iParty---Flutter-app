@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:iparty/models/enums.dart';
 
 class StateWidget extends StatelessWidget {
@@ -37,7 +38,7 @@ class StateWidget extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                CircularProgressIndicator(),
+                SpinKitCubeGrid(),
                 SizedBox(width: 5.0),
                 Text('Subiendo...'),
               ],

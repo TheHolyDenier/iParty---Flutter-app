@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:iparty/models/user.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class Party {
   final String uid;
@@ -33,6 +33,15 @@ class Party {
     @required this.date,
   });
 
+  LatLng getLatLong(){
+    if (!isOnline) {
+      var splitted = headquarter.split('_');
+      return LatLng(double.parse(splitted[0]), double.parse(splitted[1]));
+    } else {
+      return null;
+    }
+  }
+
   factory Party.fromFirestore(DocumentSnapshot doc) {
     Map data = doc.data;
     return Party(
@@ -43,7 +52,7 @@ class Party {
       summary: data['summary'] ?? '',
       players: data['players'],
       playersUID: data['playersUID'] ?? List(),
-      isRpg: data['isRpg'] != null ? data['rpg'] == '1' : true,
+      isRpg: data['isRpg'] != null ? data['isRpg'] == '1' : true,
       isCampaign: data['isCampaign'] != null ? data['isCampaign'] == '1' : true,
       isOnline: data['isOnline'] != null ? data['isOnline'] == '1' : true,
       isSafe: data['safe'] != null ? data['safe'] == '1' : true,

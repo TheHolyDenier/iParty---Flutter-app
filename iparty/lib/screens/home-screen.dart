@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:iparty/screens/loading-screen.dart';
 import 'package:iparty/screens/table-screen.dart';
 
 import 'package:provider/provider.dart';
@@ -20,55 +21,43 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _databaseReference = Firestore.instance;
-
   ThemeData _themeOf;
   var _isInit = true;
-
-//  final _party = Party(
-//    date: '18/03/2020',
-//    headquarter: 'Mi casa',
-//    isCampaign: false,
-//    isOnline: false,
-//    isRpg: false,
-//    players: {'min': 2, 'max': 5},
-//    title: 'Partida de Carcassonne',
-//    uid: 'partidilla',
-//    game: 'Carcassonne',
-//    imageUrl:
-//        'https://morethanjustmonopoly.files.wordpress.com/2016/10/img_3366-v2b.jpg?w=1254',
-//    summary:
-//        'Carcassonne is a tile-based German-style board game for two to five players, designed by Klaus-Jürgen Wrede and published in 2000 by Hans im Glück in German and by Rio Grande Games and Z-Man Games in English. It received the Spiel des Jahres and the Deutscher Spiele Preis awards in 2001.',
-//  );
+  UsersProvider _users;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    var users = Provider.of<UsersProvider>(context, listen: false);
+    _users = Provider.of<UsersProvider>(context, listen: false);
     if (_isInit) {
       Provider.of<AuthService>(context, listen: false)
           .getUId()
           .then((authUser) {
-        users.addOneUser(authUser.uid, true);
+        setState(() {
+          _users.addOneUser(authUser.uid, true);
+          _isInit = false;
+        });
       });
     }
-    _isInit = false;
   }
 
   @override
   Widget build(BuildContext context) {
     _themeOf = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Mesas disponibles'),
-      ),
-      body: _streamBuilderWidget(),
-      drawer: MyDrawer(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () =>
-            Navigator.of(context).pushNamed(NewTableScreen.routeName),
-        child: Icon(Icons.add),
-      ),
-    );
+    return _isInit
+        ? LoadingPage()
+        : Scaffold(
+            appBar: AppBar(
+              title: Text('Mesas disponibles'),
+            ),
+            body: _streamBuilderWidget(),
+            drawer: MyDrawer(),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () =>
+                  Navigator.of(context).pushNamed(NewTableScreen.routeName),
+              child: Icon(Icons.add),
+            ),
+          );
   }
 
   Widget _streamBuilderWidget() {
@@ -76,10 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
         stream: _databaseReference.collection('parties').snapshots(),
         builder: (_, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) {
-            return Padding(
-              padding: const EdgeInsets.only(top: 28.0),
-              child: CircularProgressIndicator(),
-            );
+            return LoadingPage();
           } else {
             return ListView(
               children: _getProjectsWidget(snapshot),
@@ -93,6 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
       Party party = Party.fromFirestore(doc);
       String isCampaign = party.isCampaign ? 'Una campaña' : 'Una sesión';
       String isRpg = party.isRpg ? 'rol' : 'juego de mesa';
+      String whatGame = party.game != '' ? ' de ${party.game}' : '';
       String isOnline = party.isOnline ? 'online' : '';
       return Container(
         width: double.infinity,
@@ -123,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: <Widget>[
                               Text(
-                                '$isCampaign de $isRpg $isOnline',
+                                '$isCampaign de $isRpg $whatGame $isOnline',
                                 style: TextStyle(
                                   color: Colors.white,
                                 ),
@@ -141,12 +128,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(children: <Widget>[
                       PartyDetailsWidget(party),
                       SizedBox(height: 5.0),
-                      if (party.summary != '') Text(
-                        party.summary,
-                        softWrap: true,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      if (party.summary != '')
+                        Text(
+                          party.summary,
+                          softWrap: true,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                     ]),
                   ),
                 ],
@@ -182,6 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: FittedBox(
         fit: BoxFit.cover,
         child: FadeInImage.assetNetwork(
+          width: MediaQuery.of(context).size.width,
           placeholder: 'assets/images/goblin_header.png',
           image: party.imageUrl,
         ),
