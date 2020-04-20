@@ -272,8 +272,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     // Starts an upload task
     String filePath = 'images/profile/${_user.uid}.jpg';
     final ref = _storage.ref().child(filePath);
-    ref.putFile(File(_tempUrl));
-    url = await ref.getDownloadURL() as String;
+    final StorageUploadTask uploadTask = ref.putFile(File(_tempUrl));
+    final StorageTaskSnapshot downloadUrl = (await uploadTask.onComplete);
+    final String url = (await downloadUrl.ref.getDownloadURL());
     return url;
   }
 
