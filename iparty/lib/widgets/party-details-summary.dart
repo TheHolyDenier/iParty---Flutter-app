@@ -2,12 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
-import 'package:iparty/models/user.dart';
 import 'package:latlong/latlong.dart';
 import 'package:provider/provider.dart';
 
 import '../models/party.dart';
 import '../providers/users.dart';
+import '../models/user.dart';
 
 class PartyDetailsWidget extends StatefulWidget {
   final Party _party;
@@ -24,7 +24,6 @@ class _PartyDetailsWidgetState extends State<PartyDetailsWidget> {
   _PartyDetailsWidgetState(this._party);
 
   var _dayFormat = new DateFormat('dd-MM-yyyy');
-
   var _timeFormat = new DateFormat('H:m');
 
   User _user;
@@ -35,7 +34,7 @@ class _PartyDetailsWidgetState extends State<PartyDetailsWidget> {
   Widget build(BuildContext context) {
     DateTime dateTime = DateTime.parse(_party.date);
     if (_needInit) {
-      var provider = Provider.of<UsersProvider>(context, listen: false);
+      var provider = Provider.of<UsersProvider>(context);
       setState(() {
         _user = provider.activeUser;
       });
@@ -52,9 +51,12 @@ class _PartyDetailsWidgetState extends State<PartyDetailsWidget> {
                   children: <Widget>[
                     Icon(Icons.web_asset),
                     Container(
-                        width: 50.0,
-                        child: Text(_party.headquarter,
-                            overflow: TextOverflow.ellipsis)),
+                        width: 75.0,
+                        child: Text(
+                          _party.headquarter,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                        )),
                   ],
                 )
               : _getDistanceWidget(context),
@@ -111,7 +113,13 @@ class _PartyDetailsWidgetState extends State<PartyDetailsWidget> {
     return Column(
       children: <Widget>[
         Icon(Icons.location_on),
-        _km == null ? Text('$_city') : Text('${_km.toStringAsFixed(1)}km'),
+        Container(
+            width: 75.0,
+            child: Text(
+              _km == null ? '$_city' : '${_km.toStringAsFixed(1)}km',
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+            )),
       ],
     );
   }
@@ -135,11 +143,6 @@ class _PartyDetailsWidgetState extends State<PartyDetailsWidget> {
       _getDistance();
     } else {
       _getPlace();
-      while (_user != null && _user.latitude != null) {
-        if (_user != null && _user.latitude != null) {
-          _getDistance();
-        }
-      }
     }
   }
 
