@@ -62,7 +62,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _streamBuilderWidget() {
     return StreamBuilder(
-        stream: _databaseReference.collection('parties').snapshots(),
+        stream: _databaseReference
+            .collection('parties')
+            .where('date', isGreaterThan: DateTime.now())
+            .orderBy('date')
+            .snapshots(),
         builder: (_, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) {
             return LoadingPage();
@@ -127,13 +131,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: const EdgeInsets.all(15.0),
                     child: Column(children: <Widget>[
                       PartyDetailsWidget(party),
-                      SizedBox(height: 5.0),
+                      SizedBox(height: 10.0),
                       if (party.summary != '')
-                        Text(
-                          party.summary,
-                          softWrap: true,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                        Container(
+                          width: double.infinity,
+                          child: Text(
+                            party.summary,
+                            softWrap: true,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                     ]),
                   ),
@@ -170,7 +177,6 @@ class _HomeScreenState extends State<HomeScreen> {
       child: FittedBox(
         fit: BoxFit.cover,
         child: FadeInImage.assetNetwork(
-          width: MediaQuery.of(context).size.width,
           placeholder: 'assets/images/goblin_header.png',
           image: party.imageUrl,
         ),

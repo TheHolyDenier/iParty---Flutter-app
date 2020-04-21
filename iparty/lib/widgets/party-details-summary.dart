@@ -33,7 +33,8 @@ class _PartyDetailsWidgetState extends State<PartyDetailsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    DateTime dateTime = DateTime.parse(_party.date);
+//    DateTime dateTime = DateTime.parse(_party.date);
+    DateTime dateTime = _party.date;
     if (_needInit) {
       _provider = Provider.of<UsersProvider>(context);
       setState(() {
@@ -119,20 +120,18 @@ class _PartyDetailsWidgetState extends State<PartyDetailsWidget> {
       children: <Widget>[
         Icon(Icons.location_on),
         Container(
-          width: 75.0,
-          child: (_provider.userGot)
-              ? _provider.activeUser?.latitude != null
-                  ? Text(
-                      '${Distance().as(LengthUnit.Kilometer, LatLng(_provider.activeUser?.latitude, _provider.activeUser?.longitude), LatLng(_party.getLatLong().latitude, _party.getLatLong().longitude))}km')
-                  : Text('$_city')
-//              ? Text('ok')
-              : Text('$_city'),
-//          Text(
-//            _km == null ? '$_city' : '${_km.toStringAsFixed(1)}km',
-//            overflow: TextOverflow.ellipsis,
-//            textAlign: TextAlign.center,
-//          ),
-        ),
+            width: 75.0,
+            child: Center(
+              child: Text(
+                (_provider.userGot)
+                    ? _provider.activeUser?.latitude != null
+                        ? '${Distance().as(LengthUnit.Kilometer, LatLng(_provider.activeUser?.latitude, _provider.activeUser?.longitude), LatLng(_party.getLatLong().latitude, _party.getLatLong().longitude))} km'
+                        : '$_city'
+                    : '$_city',
+                softWrap: false,
+                overflow: TextOverflow.ellipsis,
+              ),
+            )),
       ],
     );
   }
@@ -143,17 +142,8 @@ class _PartyDetailsWidgetState extends State<PartyDetailsWidget> {
     List<Placemark> placemark = await Geolocator().placemarkFromCoordinates(
         _party.getLatLong().latitude, _party.getLatLong().longitude);
 
-    Placemark placeMark = placemark[0];
-
     setState(() {
-      _city = placeMark.locality; // update _address
+      _city = placemark[0].locality; // update _address
     });
-  }
-
-  double _getDistance() {
-    return Distance().as(
-        LengthUnit.Kilometer,
-        LatLng(_user.latitude, _user.longitude),
-        LatLng(_party.getLatLong().latitude, _party.getLatLong().longitude));
   }
 }

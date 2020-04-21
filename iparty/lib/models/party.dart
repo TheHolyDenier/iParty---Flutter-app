@@ -15,7 +15,7 @@ class Party {
   bool isOnline;
   bool isSafe;
   String headquarter;
-  String date;
+  DateTime date;
 
   Party({
     @required this.uid,
@@ -33,7 +33,7 @@ class Party {
     @required this.date,
   });
 
-  LatLng getLatLong(){
+  LatLng getLatLong() {
     if (!isOnline) {
       var splitted = headquarter.split('_');
       return LatLng(double.parse(splitted[0]), double.parse(splitted[1]));
@@ -57,7 +57,8 @@ class Party {
       isOnline: data['isOnline'] != null ? data['isOnline'] == '1' : true,
       isSafe: data['safe'] != null ? data['safe'] == '1' : true,
       headquarter: data['headquarter'],
-      date: data['date'],
+//      date: DateTime.fromMillisecondsSinceEpoch(data['date']),
+      date: data['date'].toDate(),
     );
   }
 }
