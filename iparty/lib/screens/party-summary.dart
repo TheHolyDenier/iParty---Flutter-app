@@ -39,7 +39,7 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
           children: <Widget>[
             Stack(
               children: <Widget>[
-                PartyCoverWidget(_party), // Image
+                PartyCoverWidget(_party, isSummary: true,), // Image
                 Positioned(
                   bottom: 0,
                   right: 0,
@@ -154,13 +154,11 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
 
   Future<void> _getColor() async {
     final url = _party.imageUrl;
-    print('${_party.title}');
     PaletteGenerator palette = await PaletteGenerator.fromImageProvider(
       NetworkImage(url),
       size: Size(50, 50),
       region: Offset.zero & Size(40, 40),
     );
-    print('paleta: ${palette.colors}');
     setState(() {
       _color = palette.colors.first;
     });
