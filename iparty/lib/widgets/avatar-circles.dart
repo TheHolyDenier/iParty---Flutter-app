@@ -9,9 +9,11 @@ class MyTextAvatarCircle extends StatelessWidget {
   Widget build(BuildContext context) {
     return CircleAvatar(
       backgroundColor: Colors.white,
-      child: Text(
-        _letter,
-        style: TextStyle(fontSize: 40.0),
+      child: FittedBox(
+        fit: BoxFit.fitWidth,
+        child: Text(
+          _letter,
+        ),
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:iparty/widgets/party-cover.dart';
 import 'package:provider/provider.dart';
 
 import '../models/party.dart';
@@ -103,7 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: <Widget>[
                         Stack(
                           children: <Widget>[
-                            if (party.imageUrl != '') _loadImageWidget(party),
+                            if (party.imageUrl != '') PartyCoverWidget(party),
                             Positioned(
                               bottom: 0,
                               right: 0,
@@ -173,19 +174,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _loadImageWidget(Party party) {
-    return Container(
-      height: MediaQuery.of(context).size.width / 16 * 6,
-      width: double.infinity,
-      child: FittedBox(
-        fit: BoxFit.cover,
-        child: FadeInImage.assetNetwork(
-          placeholder: 'assets/images/goblin_header.png',
-          image: party.imageUrl,
-        ),
-      ),
-    );
-  }
 
 //  RefreshIndicator _buildRefreshIndicator() {
 //    return RefreshIndicator(
