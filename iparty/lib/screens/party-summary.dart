@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:palette_generator/palette_generator.dart';
 import 'package:provider/provider.dart';
 
 import '../models/party.dart';
@@ -22,18 +23,17 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
 
   UsersProvider _provider;
   Party _party;
+  Color _color;
 
   @override
   Widget build(BuildContext context) {
     _party = ModalRoute.of(context).settings.arguments;
+    if (_party.imageUrl != '' && _color == null) _getColor();
     _provider = Provider.of<UsersProvider>(context);
     _getUsers();
     User _owner = _provider.findByUid(_party.playersUID[0]);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_party.title),
-      ),
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
@@ -45,6 +45,17 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
                   right: 0,
                   left: 0,
                   child: _ownerWidget(_owner, context),
+                ),
+                Positioned(
+                  top: 10.0,
+                  left: 10.0,
+                  child: IconButton(
+                    icon: Icon(Icons.arrow_back,
+                        color: _color == null || _color.computeLuminance() > 0.5
+                            ? Colors.black
+                            : Colors.white),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
                 ),
               ],
             ),
@@ -69,7 +80,9 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
                       ),
                     ),
                   ),
-                  RaisedButton(child: Text('¡Apúntate!'),),
+                  RaisedButton(
+                    child: Text('¡Apúntate!'),
+                  ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: Text(
@@ -137,5 +150,19 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
     for (String uid in _party.playersUID) {
       _provider.addOneUser(uid, false);
     }
+  }
+
+  Future<void> _getColor() async {
+    final url = _party.imageUrl;
+    print('${_party.title}');
+    PaletteGenerator palette = await PaletteGenerator.fromImageProvider(
+      NetworkImage(url),
+      size: Size(50, 50),
+      region: Offset.zero & Size(40, 40),
+    );
+    print('paleta: ${palette.colors}');
+    setState(() {
+      _color = palette.colors.first;
+    });
   }
 }
