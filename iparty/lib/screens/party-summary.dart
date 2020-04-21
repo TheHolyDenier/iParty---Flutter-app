@@ -156,7 +156,7 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
     final url = _party.imageUrl;
     PaletteGenerator palette = await PaletteGenerator.fromImageProvider(
       NetworkImage(url),
-      size: Size(50, 50),
+      size: Size(500, 250),
       region: Offset.zero & Size(40, 40),
     );
     setState(() {

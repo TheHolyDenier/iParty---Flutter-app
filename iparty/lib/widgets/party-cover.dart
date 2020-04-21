@@ -14,9 +14,12 @@ class PartyCoverWidget extends StatelessWidget {
       width: double.infinity,
       child: FittedBox(
         fit: BoxFit.cover,
-        child: FadeInImage.assetNetwork(
-          placeholder: 'assets/images/goblin_header.png',
-          image: _party.imageUrl,
+        child: Hero(
+          tag: _party.uid,
+          child: FadeInImage.assetNetwork(
+            placeholder: 'assets/images/goblin_header.png',
+            image: _party.imageUrl,
+          ),
         ),
       ),
     );
