@@ -160,7 +160,7 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
       region: Offset.zero & Size(40, 40),
     );
     setState(() {
-      _color = palette.colors.first;
+      _color = palette.colors?.first;
     });
   }
 }

@@ -104,7 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: <Widget>[
                         Stack(
                           children: <Widget>[
-                            if (party.imageUrl != '') PartyCoverWidget(party),
+                            PartyCoverWidget(party),
                             Positioned(
                               bottom: 0,
                               right: 0,

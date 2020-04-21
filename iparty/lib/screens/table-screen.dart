@@ -260,7 +260,6 @@ class _NewTableScreenState extends State<NewTableScreen> {
                   )
                 : AddressWidget(
                     controllerGeo: _controllerGeo,
-//                    latLng: LatLng(40.974737, -5.672455),
                     callback: _callbackGeo),
             if (customError['address'])
               Container(
