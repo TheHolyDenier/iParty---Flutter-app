@@ -9,6 +9,7 @@ class UsersProvider with ChangeNotifier {
   final Firestore _db = Firestore.instance;
   Map<String, User> _users = {};
   User _activeUser;
+  bool userGot = true;
 
   User get activeUser => _activeUser;
 
@@ -42,12 +43,16 @@ class UsersProvider with ChangeNotifier {
 
   Future<void> addOneUser(String uid, bool active) async {
     if (!_users.keys.contains(uid)) {
+      if (active) userGot = false;
       var doc = _db.collection('users').document(uid);
 
       doc.get().then((doc) {
         if (doc.exists) {
           _users.putIfAbsent(uid, () => User.fromFirestore(doc));
-          if (active) _activeUser = User.fromFirestore(doc);
+          if (active) {
+            _activeUser = User.fromFirestore(doc);
+            userGot = true;
+          }
           notifyListeners();
         } else {
           print('Not found');

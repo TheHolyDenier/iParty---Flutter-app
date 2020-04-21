@@ -23,9 +23,10 @@ class _PartyDetailsWidgetState extends State<PartyDetailsWidget> {
 
   _PartyDetailsWidgetState(this._party);
 
-  var _dayFormat = new DateFormat('dd-MM-yyyy');
-  var _timeFormat = new DateFormat('H:m');
+  var _dayFormat = new DateFormat('dd-MM-yy');
+  var _timeFormat = new DateFormat.Hm();
 
+  UsersProvider _provider;
   User _user;
   bool _needInit = true;
   double _km;
@@ -34,9 +35,9 @@ class _PartyDetailsWidgetState extends State<PartyDetailsWidget> {
   Widget build(BuildContext context) {
     DateTime dateTime = DateTime.parse(_party.date);
     if (_needInit) {
-      var provider = Provider.of<UsersProvider>(context);
+      _provider = Provider.of<UsersProvider>(context);
       setState(() {
-        _user = provider.activeUser;
+        _user = _provider.activeUser;
       });
     }
     _needInit = false;
@@ -109,17 +110,29 @@ class _PartyDetailsWidgetState extends State<PartyDetailsWidget> {
   }
 
   Widget _getDistanceWidget(BuildContext context) {
-    _getKm();
+    if (!_provider.userGot || _provider.activeUser?.latitude != null)
+      _getPlace();
+    else if (_provider.activeUser?.latitude != null) {
+      print('entra');
+    }
     return Column(
       children: <Widget>[
         Icon(Icons.location_on),
         Container(
-            width: 75.0,
-            child: Text(
-              _km == null ? '$_city' : '${_km.toStringAsFixed(1)}km',
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-            )),
+          width: 75.0,
+          child: (_provider.userGot)
+              ? _provider.activeUser?.latitude != null
+                  ? Text(
+                      '${Distance().as(LengthUnit.Kilometer, LatLng(_provider.activeUser?.latitude, _provider.activeUser?.longitude), LatLng(_party.getLatLong().latitude, _party.getLatLong().longitude))}km')
+                  : Text('$_city')
+//              ? Text('ok')
+              : Text('$_city'),
+//          Text(
+//            _km == null ? '$_city' : '${_km.toStringAsFixed(1)}km',
+//            overflow: TextOverflow.ellipsis,
+//            textAlign: TextAlign.center,
+//          ),
+        ),
       ],
     );
   }
@@ -130,7 +143,6 @@ class _PartyDetailsWidgetState extends State<PartyDetailsWidget> {
     List<Placemark> placemark = await Geolocator().placemarkFromCoordinates(
         _party.getLatLong().latitude, _party.getLatLong().longitude);
 
-    // this is all you need
     Placemark placeMark = placemark[0];
 
     setState(() {
@@ -138,20 +150,10 @@ class _PartyDetailsWidgetState extends State<PartyDetailsWidget> {
     });
   }
 
-  void _getKm() {
-    if (_user != null && _user.latitude != null) {
-      _getDistance();
-    } else {
-      _getPlace();
-    }
-  }
-
-  void _getDistance() {
-    setState(() {
-      _km = Distance().as(
-          LengthUnit.Kilometer,
-          LatLng(_user.latitude, _user.longitude),
-          LatLng(_party.getLatLong().latitude, _party.getLatLong().longitude));
-    });
+  double _getDistance() {
+    return Distance().as(
+        LengthUnit.Kilometer,
+        LatLng(_user.latitude, _user.longitude),
+        LatLng(_party.getLatLong().latitude, _party.getLatLong().longitude));
   }
 }
