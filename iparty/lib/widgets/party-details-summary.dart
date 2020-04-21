@@ -33,7 +33,6 @@ class _PartyDetailsWidgetState extends State<PartyDetailsWidget> {
 
   @override
   Widget build(BuildContext context) {
-//    DateTime dateTime = DateTime.parse(_party.date);
     DateTime dateTime = _party.date;
     if (_needInit) {
       _provider = Provider.of<UsersProvider>(context);

@@ -464,7 +464,7 @@ class _NewTableScreenState extends State<NewTableScreen> {
       'headquarter': _online
           ? _controllerWebsite.text
           : '${_latLng.latitude}_${_latLng.longitude}',
-      'date': dateTime.toUtc().millisecondsSinceEpoch,
+      'date': dateTime,
     }).then((_) {
 //      Sets ok message
       setState(() {

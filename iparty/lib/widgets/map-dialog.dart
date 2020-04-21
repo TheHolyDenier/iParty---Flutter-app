@@ -73,7 +73,7 @@ class _MapDialogState extends State<MapDialog> {
               onPressed: _marker.length == 0
                   ? null
                   : () => Navigator.pop(context,
-                      '${_marker[_markerId].position.latitude}_${_marker[_markerId].position.longitude}'),
+                      '${_center.latitude}_${_center.longitude}'),
             )
           ],
           title: FittedBox(
@@ -134,7 +134,6 @@ class _MapDialogState extends State<MapDialog> {
               child: TextField(
                 controller: _searchAddressController,
                 onSubmitted: (_) => _searchByAddress(),
-//                    onChanged: onTextChange,
                 decoration: InputDecoration(
                     hintText: 'Calle, número, código postal...',
                     hintStyle: TextStyle(color: Colors.black),

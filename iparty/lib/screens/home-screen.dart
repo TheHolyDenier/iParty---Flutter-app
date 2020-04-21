@@ -1,12 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:iparty/screens/loading-screen.dart';
-import 'package:iparty/screens/table-screen.dart';
-
 import 'package:provider/provider.dart';
 
 import '../models/party.dart';
 import '../widgets/drawer.dart';
+import './table-screen.dart';
+import './loading-screen.dart';
 import '../providers/logged-user.dart';
 import '../providers/users.dart';
 import './party-summary.dart';
@@ -28,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _users = Provider.of<UsersProvider>(context, listen: false);
+    _users = Provider.of<UsersProvider>(context, listen: true);
     if (_isInit) {
       Provider.of<AuthService>(context, listen: false)
           .getUId()
@@ -85,71 +84,75 @@ class _HomeScreenState extends State<HomeScreen> {
       String isRpg = party.isRpg ? 'rol' : 'juego de mesa';
       String whatGame = party.game != '' ? ' de ${party.game}' : '';
       String isOnline = party.isOnline ? 'online' : '';
-      return Container(
-        width: double.infinity,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: GestureDetector(
-            onTap: () {
-              Navigator.of(context)
-                  .pushNamed(PartySummaryScreen.routeName, arguments: party);
-            },
-            child: Card(
-              elevation: 5.0,
-              clipBehavior: Clip.antiAliasWithSaveLayer,
-              child: Column(
-                children: <Widget>[
-                  Stack(
-                    children: <Widget>[
-                      if (party.imageUrl != '') _loadImageWidget(party),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        left: 0,
-                        child: Container(
-                          padding: EdgeInsets.only(left: 5, right: 5),
-                          color: Colors.black54,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: <Widget>[
-                              Text(
-                                '$isCampaign de $isRpg $whatGame $isOnline',
-                                style: TextStyle(
-                                  color: Colors.white,
+      return party.playersUID[0] == _users.activeUser?.uid
+          ? Container()
+          : Container(
+              width: double.infinity,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pushNamed(
+                        PartySummaryScreen.routeName,
+                        arguments: party);
+                  },
+                  child: Card(
+                    elevation: 5.0,
+                    clipBehavior: Clip.antiAliasWithSaveLayer,
+                    child: Column(
+                      children: <Widget>[
+                        Stack(
+                          children: <Widget>[
+                            if (party.imageUrl != '') _loadImageWidget(party),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              left: 0,
+                              child: Container(
+                                padding: EdgeInsets.only(left: 5, right: 5),
+                                color: Colors.black54,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: <Widget>[
+                                    Text(
+                                      '$isCampaign de $isRpg $whatGame $isOnline',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                      textAlign: TextAlign.right,
+                                    ),
+                                    _titlePartyWidget(party),
+                                  ],
                                 ),
-                                textAlign: TextAlign.right,
                               ),
-                              _titlePartyWidget(party),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: Column(children: <Widget>[
-                      PartyDetailsWidget(party),
-                      SizedBox(height: 10.0),
-                      if (party.summary != '')
-                        Container(
-                          width: double.infinity,
-                          child: Text(
-                            party.summary,
-                            softWrap: true,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                        Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: Column(children: <Widget>[
+                            PartyDetailsWidget(party),
+                            SizedBox(height: 10.0),
+                            if (party.summary != '')
+                              Container(
+                                width: double.infinity,
+                                child: Text(
+                                  party.summary,
+                                  softWrap: true,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                          ]),
                         ),
-                    ]),
+                      ],
+                    ),
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
-        ),
-      );
+            );
     }).toList();
   }
 
