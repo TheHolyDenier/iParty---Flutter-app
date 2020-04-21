@@ -3,18 +3,9 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:iparty/models/enums.dart';
 
 class StateWidget extends StatelessWidget {
-  StatusUpload _statusUpload;
+  final StatusUpload _statusUpload;
 
   StateWidget(this._statusUpload);
-
-//  @override
-//  _StateWidgetState createState() => _StateWidgetState(_statusUpload);
-//}
-//
-//class _StateWidgetState extends State<StateWidget> {
-//  StatusUpload _statusUpload;
-//
-//  _StateWidgetState(this._statusUpload);
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +29,10 @@ class StateWidget extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                SpinKitCubeGrid(),
+                SpinKitWanderingCubes(
+                  size: 25.0,
+                  color: Theme.of(context).primaryColor,
+                ),
                 SizedBox(width: 5.0),
                 Text('Subiendo...'),
               ],

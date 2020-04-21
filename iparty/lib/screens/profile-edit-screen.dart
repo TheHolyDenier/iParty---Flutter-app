@@ -3,17 +3,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:iparty/models/enums.dart';
-import 'package:iparty/widgets/status-widget.dart';
 import 'package:provider/provider.dart';
 
 import '../models/user.dart';
+import '../models/enums.dart';
 import '../providers/users.dart';
 import '../widgets/avatar-circles.dart';
 import '../widgets/drawer.dart';
 import '../widgets/profilepic-picker.dart';
 import '../widgets/chips-widget.dart';
 import '../widgets/geo-field.dart';
+import '../widgets/status-widget.dart';
 
 class EditProfileScreen extends StatefulWidget {
   static final routeName = '/edit-profile';
@@ -108,7 +108,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     StateWidget(_statusUpload),
                     _widgetBio(),
                     // Bio Widget
-                    AddressWidget(_controllerGeo, _latLng, _callbackGeo),
+                    AddressWidget(
+                        controllerGeo: _controllerGeo,
+                        latLng: _latLng,
+                        callback: _callbackGeo),
                     // Geo Widget
                     SizedBox(height: 10),
                     Container(
@@ -157,7 +160,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       child: TextField(
         controller: _kmController,
         onChanged: (_) {
-          _checkErroKm();
+          _checkErrorKm();
         },
         decoration: new InputDecoration(
             labelText: 'Distancia máxima de partidas: ',
@@ -294,7 +297,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
 //  Checks if KM is alright
-  _checkErroKm() {
+  _checkErrorKm() {
     if (_kmController.text.isEmpty) {
       _errorsKm = ErrorsKm.ok;
     } else if (double.tryParse(_kmController.text) == null) {

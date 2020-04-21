@@ -4,7 +4,7 @@ enum ChipsOptions { Online, RPG, TableGames, SafeSpace }
 
 class ChipsWidget extends StatefulWidget {
   final bool online, rpg, tableGames, safeSpace;
-  Function callback;
+  final Function callback;
   final bool filter;
 
   ChipsWidget(

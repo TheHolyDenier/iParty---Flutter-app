@@ -5,29 +5,31 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'map-dialog.dart';
 
 class AddressWidget extends StatefulWidget {
-  final TextEditingController _controllerGeo;
-  LatLng _latLng;
-  Function _callback;
+  final TextEditingController controllerGeo;
+  final LatLng latLng;
+  final Function callback;
 
-  AddressWidget(this._controllerGeo, this._latLng, this._callback);
+  AddressWidget({this.controllerGeo, this.latLng, this.callback});
 
   @override
-  _AddressWidgetState createState() =>
-      _AddressWidgetState(_controllerGeo, _latLng, _callback);
+  _AddressWidgetState createState() => _AddressWidgetState(
+      controllerGeo: controllerGeo, latLng: latLng, callback: callback);
 }
 
 class _AddressWidgetState extends State<AddressWidget> {
-  final TextEditingController _controllerGeo;
-  Function _callback;
-  LatLng _latLng;
+  final TextEditingController controllerGeo;
+  Function callback;
+  LatLng latLng;
 
-  _AddressWidgetState(this._controllerGeo, this._latLng, this._callback);
+  _AddressWidgetState({this.controllerGeo, this.latLng, this.callback});
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-//    _searchAddress();
+    if (latLng != null) {
+      _searchAddress();
+    }
   }
 
   @override
@@ -36,7 +38,7 @@ class _AddressWidgetState extends State<AddressWidget> {
       children: <Widget>[
         TextFormField(
           enabled: false,
-          controller: _controllerGeo,
+          controller: controllerGeo,
           decoration: InputDecoration(
               contentPadding: EdgeInsets.only(right: 45.0),
               icon: Icon(Icons.map),
@@ -69,9 +71,9 @@ class _AddressWidgetState extends State<AddressWidget> {
       // Translates address
       if (result != null) {
         setState(() {
-          _latLng = LatLng(double.parse(result.split('_')[0]),
+          latLng = LatLng(double.parse(result.split('_')[0]),
               double.parse(result.split('_')[1]));
-          _callback(_latLng);
+          callback(latLng);
         });
         _searchAddress();
       }
@@ -81,10 +83,10 @@ class _AddressWidgetState extends State<AddressWidget> {
   // Searches address of lat/long
   _searchAddress() async {
     await Geolocator()
-        .placemarkFromCoordinates(_latLng.latitude, _latLng.longitude)
+        .placemarkFromCoordinates(latLng.latitude, latLng.longitude)
         .then((address) {
       setState(() {
-        _controllerGeo.text =
+        controllerGeo.text =
             '${address[0].thoroughfare} ${address[0].name}, ${address[0].locality}';
       });
     });

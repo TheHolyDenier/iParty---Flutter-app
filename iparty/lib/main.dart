@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:iparty/screens/loading-screen.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -13,6 +11,7 @@ import './screens/party-summary.dart';
 import './screens/profile-edit-screen.dart';
 import './screens/splash-screen.dart';
 import './screens/table-screen.dart';
+import './screens/loading-screen.dart';
 
 import './providers/logged-user.dart';
 import './providers/users.dart';
