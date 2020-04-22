@@ -43,36 +43,39 @@ class _PartyDetailsWidgetState extends State<PartyDetailsWidget> {
     _needInit = false;
     return Container(
       width: double.infinity,
-      child: Wrap(
-        alignment: WrapAlignment.spaceBetween,
-        crossAxisAlignment: WrapCrossAlignment.center,
+      child: Row(
         children: <Widget>[
           _party.isOnline
-              ? Column(
-                  children: <Widget>[
-                    Icon(Icons.web_asset),
-                    Container(
-                        width: 75.0,
-                        child: Text(
-                          _party.headquarter,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
-                        )),
-                  ],
-                )
+              ? Expanded(
+                child: Column(
+                    children: <Widget>[
+                      Icon(Icons.web_asset),
+                      Container(
+                          child: Text(
+                            _party.headquarter,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                          )),
+                    ],
+                  ),
+              )
               : _getDistanceWidget(context),
           _numberPlayersWidget(),
-          Column(
-            children: <Widget>[
-              Icon(Icons.timer),
-              Text('${_timeFormat.format(dateTime)}'),
-            ],
+          Expanded(
+            child: Column(
+              children: <Widget>[
+                Icon(Icons.timer),
+                Text('${_timeFormat.format(dateTime)}'),
+              ],
+            ),
           ),
-          Column(
-            children: <Widget>[
-              Icon(Icons.calendar_today),
-              Text('${_dayFormat.format(dateTime)}')
-            ],
+          Expanded(
+            child: Column(
+              children: <Widget>[
+                Icon(Icons.calendar_today),
+                Text('${_dayFormat.format(dateTime)}')
+              ],
+            ),
           ),
         ],
       ),

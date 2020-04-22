@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:iparty/widgets/party-cover.dart';
@@ -93,9 +95,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.all(8.0),
                 child: GestureDetector(
                   onTap: () {
-                    Navigator.of(context).pushNamed(
-                        PartySummaryScreen.routeName,
-                        arguments: party);
+                    for (String uid in party.playersUID) {
+                      _users.addOneUser(uid, false);
+                    }
+                    Timer(Duration(milliseconds: 5), () {
+                      Navigator.of(context).pushNamed(
+                          PartySummaryScreen.routeName,
+                          arguments: party);
+                    });
                   },
                   child: Card(
                     elevation: 5.0,
@@ -173,7 +180,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 
 //  RefreshIndicator _buildRefreshIndicator() {
 //    return RefreshIndicator(
