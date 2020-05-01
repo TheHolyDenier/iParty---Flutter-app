@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_fab_dialer/flutter_fab_dialer.dart';
 
 class PartyActionsWidget extends StatefulWidget {
   @override
@@ -6,53 +7,59 @@ class PartyActionsWidget extends StatefulWidget {
 }
 
 class _PartyActionsWidgetState extends State<PartyActionsWidget> {
-  bool _isOpen = false;
+  List<FabMiniMenuItem> _fabMiniMenuItemList;
+
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: <Widget>[
-        if (_isOpen)
-          Column(
-            children: <Widget>[
-              FloatingActionButton(
-                heroTag: 'finish',
-                onPressed: () {},
-                child: Icon(Icons.delete),
-              ),
-              SizedBox(height: 10.0),
-              FloatingActionButton(
-                heroTag: 'delete-user',
-                onPressed: () {},
-                child: Icon(Icons.not_interested),
-              ),
-              SizedBox(height: 10.0),
-              FloatingActionButton(
-                heroTag: 'add-user',
-                onPressed: () {},
-                child: Icon(Icons.person_add),
-              ),
-              SizedBox(height: 10.0),
-              FloatingActionButton(
-                heroTag: 'cover',
-                onPressed: () {},
-                child: Icon(Icons.add_photo_alternate),
-              ),
-              SizedBox(height: 10.0),
-            ],
-          ),
-        FloatingActionButton(
-          backgroundColor: _isOpen ? Theme.of(context).primaryColor : Theme.of(context).accentColor,
-          heroTag: 'settings',
-          onPressed: () {
-            setState(() {
-              _isOpen = !_isOpen;
-            });
-          },
-          child: Icon(_isOpen ? Icons.close : Icons.settings),
-        ),
-      ],
-    );
+    _genList(Theme.of(context));
+    return FabDialer(
+        _fabMiniMenuItemList, Theme.of(context).accentColor, new Icon(Icons.settings));
+  }
+
+  void _genList(ThemeData themeData) {
+    var background = themeData.accentColor;
+    _fabMiniMenuItemList = [
+      FabMiniMenuItem.withText(
+          new Icon(Icons.delete),
+          background,
+          4.0,
+          '',
+          () {},
+          'Finalizar partida',
+          Colors.white,
+          Colors.black,
+          true),
+      FabMiniMenuItem.withText(
+          new Icon(Icons.add_photo_alternate),
+          background,
+          4.0,
+          '',
+          () {},
+          'Cambiar portada',
+          Colors.white,
+          Colors.black,
+          true),
+      FabMiniMenuItem.withText(
+          new Icon(Icons.person_add),
+          background,
+          4.0,
+          '',
+          () {},
+          'Añadir jugador',
+          Colors.white,
+          Colors.black,
+          true),
+      FabMiniMenuItem.withText(
+          new Icon(Icons.not_interested),
+          background,
+          4.0,
+          '',
+          () {},
+          'Eliminar jugador',
+          Colors.white,
+          Colors.black,
+          true),
+    ];
   }
 }

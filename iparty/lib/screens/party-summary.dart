@@ -111,7 +111,7 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
           ],
         ),
       ),
-      floatingActionButton: PartyActionsWidget(),
+      floatingActionButton: _isOwner ? PartyActionsWidget() : Container(),
     );
   }
 
