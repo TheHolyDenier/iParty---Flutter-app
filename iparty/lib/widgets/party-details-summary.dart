@@ -47,18 +47,21 @@ class _PartyDetailsWidgetState extends State<PartyDetailsWidget> {
         children: <Widget>[
           _party.isOnline
               ? Expanded(
-                child: Column(
+                  child: Column(
                     children: <Widget>[
                       Icon(Icons.web_asset),
                       Container(
                           child: Text(
-                            _party.headquarter,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                          )),
+                        _party.isOnline &&
+                                Uri.parse(_party.headquarter).isAbsolute
+                            ? Uri.parse(_party.headquarter).host.split('.')[1]
+                            : _party.headquarter,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                      )),
                     ],
                   ),
-              )
+                )
               : _getDistanceWidget(context),
           _numberPlayersWidget(),
           Expanded(

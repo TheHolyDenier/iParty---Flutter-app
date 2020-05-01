@@ -2,16 +2,16 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:iparty/widgets/party-cover.dart';
 import 'package:provider/provider.dart';
 
-import '../models/party.dart';
-import '../widgets/drawer.dart';
+import './party-summary.dart';
 import './table-screen.dart';
 import './loading-screen.dart';
+import '../models/party.dart';
 import '../providers/logged-user.dart';
 import '../providers/users.dart';
-import './party-summary.dart';
+import '../widgets/drawer.dart';
+import '../widgets/party-cover.dart';
 import '../widgets/party-details-summary.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -71,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
             .snapshots(),
         builder: (_, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) {
-            return LoadingPage();
+            return Container();
           } else {
             return ListView(
               children: _getProjectsWidget(snapshot),
@@ -95,14 +95,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.all(8.0),
                 child: GestureDetector(
                   onTap: () {
-                    for (String uid in party.playersUID) {
-                      _users.addOneUser(uid, false);
-                    }
-                    Timer(Duration(milliseconds: 5), () {
-                      Navigator.of(context).pushNamed(
-                          PartySummaryScreen.routeName,
-                          arguments: party);
-                    });
+//                    for (String uid in party.playersUID) {
+//                      _users.addOneUser(uid, false);
+//                    }
+                    Navigator.of(context).pushNamed(
+                        PartySummaryScreen.routeName,
+                        arguments: party);
                   },
                   child: Card(
                     elevation: 5.0,
@@ -180,94 +178,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
-//  RefreshIndicator _buildRefreshIndicator() {
-//    return RefreshIndicator(
-//        child: ListView.builder(
-//          itemBuilder: (context, index) {
-//            String isCampaign = _party.isCampaign ? 'Campaña' : 'Partida';
-//            String isRpg = _party.isRpg ? 'rol' : 'juego de mesa';
-//            String isOnline = _party.isOnline ? 'onlinr' : '';
-//            return Container(
-//              width: double.infinity,
-//              child: Padding(
-//                padding: const EdgeInsets.all(8.0),
-//                child: GestureDetector(
-//                  onTap: () {
-//                    Navigator.of(context).pushNamed(
-//                        PartySummaryScreen.routeName,
-//                        arguments: _party);
-//                  },
-//                  child: Card(
-//                    elevation: 5.0,
-//                    clipBehavior: Clip.antiAliasWithSaveLayer,
-//                    child: Column(
-//                      children: <Widget>[
-//                        Stack(
-//                          children: <Widget>[
-//                            Image.network(
-//                              _party.imageUrl,
-//                              fit: BoxFit.cover,
-//                              height: 170,
-//                              width: double.infinity,
-//                            ),
-//                            Positioned(
-//                              bottom: 0,
-//                              right: 0,
-//                              left: 0,
-//                              child: Container(
-//                                padding: EdgeInsets.only(left: 5, right: 5),
-//                                color: Colors.black54,
-//                                child: Column(
-//                                  mainAxisAlignment: MainAxisAlignment.end,
-//                                  crossAxisAlignment:
-//                                      CrossAxisAlignment.stretch,
-//                                  children: <Widget>[
-//                                    Text(
-//                                      '$isCampaign de $isRpg $isOnline',
-//                                      style: TextStyle(
-//                                        color: Colors.white,
-//                                      ),
-//                                      textAlign: TextAlign.right,
-//                                    ),
-//                                    Text(
-//                                      _party.title,
-//                                      overflow: TextOverflow.ellipsis,
-//                                      textAlign: TextAlign.right,
-//                                      style: _themeOf.textTheme.headline1
-//                                          .copyWith(
-//                                              color: Colors.white, height: 1),
-//                                    ),
-//                                  ],
-//                                ),
-//                              ),
-//                            ),
-//                          ],
-//                        ),
-//                        Padding(
-//                          padding: const EdgeInsets.all(15.0),
-//                          child: Column(children: <Widget>[
-//                            PartyDetailsWidget(_party),
-//                            SizedBox(height: 5.0),
-//                            Text(
-//                              _party.summary,
-//                              softWrap: true,
-//                              maxLines: 2,
-//                              overflow: TextOverflow.ellipsis,
-//                            ),
-//                          ]),
-//                        ),
-//                      ],
-//                    ),
-//                  ),
-//                ),
-//              ),
-//            );
-//          },
-//          itemCount: 10,
-//        ),
-//        onRefresh: () async {
-//          return true;
-//        });
-//  }
 }

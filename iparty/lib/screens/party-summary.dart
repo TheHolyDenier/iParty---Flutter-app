@@ -2,14 +2,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:iparty/widgets/geo-field.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../models/party.dart';
 import '../models/user.dart';
 import '../providers/users.dart';
+import '../widgets/geo-field.dart';
 import '../widgets/party-details-summary.dart';
 import '../widgets/avatar-circles.dart';
 import '../widgets/party-cover.dart';
@@ -37,10 +38,8 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
       _getColor();
       _gotColor = true;
     }
-    _provider = Provider.of<UsersProvider>(context);
-    _getUsers();
+    _provider = Provider.of<UsersProvider>(context, listen: false);
 
-    User _owner = _provider.findByUid(_party.playersUID[0]);
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -57,9 +56,7 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
                   bottom: 0,
                   right: 0,
                   left: 0,
-                  child: _owner != null
-                      ? _ownerWidget(_owner, context)
-                      : Container(),
+                  child: _getOwner(),
                 ),
               ],
             ),
@@ -153,7 +150,33 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
                     ),
                   _party.isOnline && Uri.parse(_party.headquarter).isAbsolute
                       ? Container(
-                          child: Text('Es una url!'),
+                          width: double.infinity,
+                          child: ListTile(
+                            title: FittedBox(
+                              child: Text(
+                                Uri.parse(_party.headquarter)
+                                    .host
+                                    .split('.')[1],
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            subtitle: FittedBox(
+                              child: Text(
+                                _party.headquarter,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                              ),
+                            ),
+                            trailing: GestureDetector(
+                              onTap: () {
+                                _launchInBrowser(_party.headquarter);
+                              },
+                              child: Icon(Icons.open_in_new,
+                                  color: Theme.of(context).primaryColor),
+                            ),
+                          ),
                         )
                       : Container(
                           width: double.infinity,
@@ -161,7 +184,7 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
                             children: <Widget>[
                               Text('La partida se hará a través de '),
                               Text(
-                                _party.headquarter,
+                                '${_party.headquarter}.',
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                             ],
@@ -170,6 +193,19 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
               ))
       ],
     );
+  }
+
+  Future<void> _launchInBrowser(String url) async {
+    if (await canLaunch(url)) {
+      await launch(
+        url,
+        forceSafariVC: false,
+        forceWebView: false,
+        headers: <String, String>{'my_header_key': 'my_header_value'},
+      );
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 
   Widget _errorWidget(BuildContext context) {
@@ -216,17 +252,17 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
     );
   }
 
-  Widget _ownerWidget(User _owner, BuildContext context) {
+  Widget _ownerWidget(User owner, BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(5.0),
       width: double.infinity,
       color: Colors.black45,
       child: ListTile(
-        leading: _owner.imageUrl == ''
-            ? MyTextAvatarCircle(_owner?.displayName[0])
-            : MyImageAvatarCircle(_owner.imageUrl, true),
+        leading: owner.imageUrl == ''
+            ? MyTextAvatarCircle(owner?.displayName[0])
+            : MyImageAvatarCircle(owner.imageUrl, true),
         title: Text(
-          _owner?.displayName,
+          owner?.displayName,
           style: Theme.of(context)
               .textTheme
               .headline6
@@ -240,13 +276,27 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
     );
   }
 
+  Widget _getAllPlayers(String uid) {
+    return StreamBuilder(
+        stream:
+            _databaseReference.collection('users').document(uid).snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return SpinKitWanderingCubes(
+              color: Theme.of(context).primaryColor,
+              size: 25.0,
+            );
+          }
+          var user = User.fromFirestore(snapshot.data);
+          return user.imageUrl != ''
+              ? MyImageAvatarCircle(user.imageUrl, true)
+              : MyTextAvatarCircle(user.displayName[0]);
+        });
+  }
+
   Widget _playersInfo() {
-    List<User> players = List();
-    _party.playersUID.asMap().forEach((index, value) {
-      if (index != 0) {
-        players.add(_provider.findByUid(value));
-      }
-    });
+    List<dynamic> players = _party.playersUID;
+    players.removeAt(0);
     return Card(
       child: Container(
         padding: const EdgeInsets.all(8.0),
@@ -278,9 +328,7 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
                     Container(
                       width: 50.0,
                       height: 50.0,
-                      child: player.imageUrl != ''
-                          ? MyImageAvatarCircle(player.imageUrl, true)
-                          : MyTextAvatarCircle(player.displayName[0]),
+                      child: _getAllPlayers(player),
                     ),
                 ],
               ), // PLAYERS
@@ -306,11 +354,13 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
     }
     PaletteGenerator palette = await PaletteGenerator.fromImageProvider(
       _party.imageUrl == '' ? AssetImage(url) : NetworkImage(url),
-      size: Size(500, 250),
-      region: Offset.zero & Size(40, 40),
+      size: Size(50, 50),
+      timeout: Duration.zero,
+      region: Offset.zero & Size(2, 2),
+      maximumColorCount: 1,
     );
     setState(() {
-      _color = palette.colors?.first;
+      _color = palette.colors?.first ?? null;
     });
     if (_color == null) _getColor();
   }
@@ -332,5 +382,23 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
       });
       print(error.toString());
     });
+  }
+
+  Widget _getOwner() {
+    return StreamBuilder(
+        stream: _databaseReference
+            .collection('users')
+            .document(_party.playersUID[0])
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return SpinKitWanderingCubes(
+              color: Theme.of(context).primaryColor,
+              size: 25.0,
+            );
+          }
+          var activeUser = User.fromFirestore(snapshot.data);
+          return _ownerWidget(activeUser, context);
+        });
   }
 }
