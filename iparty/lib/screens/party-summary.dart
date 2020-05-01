@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:iparty/widgets/profile-widget.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -212,11 +213,29 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
                             )
                           : AddressWidget(
                               latLng: _party.getLatLong(),
-                    controllerGeo: TextEditingController(),
+                              controllerGeo: TextEditingController(),
                             ),
                 ],
               ))
       ],
+    );
+  }
+
+  Widget _seeProfile(User user) {
+    return GestureDetector(
+      child: Hero(
+        tag: user.uid,
+        child: user.imageUrl == ''
+            ? MyTextAvatarCircle(user.displayName[0])
+            : MyImageAvatarCircle(user.imageUrl, true),
+      ),
+      onTap: () => showDialog<String>(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return ProfileWidget(user);
+        },
+      ),
     );
   }
 
@@ -261,9 +280,7 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
       width: double.infinity,
       color: Colors.black45,
       child: ListTile(
-        leading: owner.imageUrl == ''
-            ? MyTextAvatarCircle(owner?.displayName[0])
-            : MyImageAvatarCircle(owner.imageUrl, true),
+        leading: _seeProfile(owner),
         title: Text(
           owner?.displayName,
           style: Theme.of(context)
@@ -291,9 +308,7 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
             );
           }
           var user = User.fromFirestore(snapshot.data);
-          return user.imageUrl != ''
-              ? MyImageAvatarCircle(user.imageUrl, true)
-              : MyTextAvatarCircle(user.displayName[0]);
+          return _seeProfile(user);
         });
   }
 

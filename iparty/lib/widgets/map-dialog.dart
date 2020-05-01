@@ -41,7 +41,6 @@ class _MapDialogState extends State<MapDialog> {
       await Geolocator()
           .getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
           .then((Position position) {
-            print('_getCurrentLocation: $position');
         center = LatLng(position.latitude, position.longitude);
         _moveMarker(center);
       });
