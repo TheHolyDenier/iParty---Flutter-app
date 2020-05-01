@@ -10,18 +10,20 @@ import './party-details-summary.dart';
 
 class PartiesWidget extends StatefulWidget {
   final Function filters;
+  final bool joined;
 
-  PartiesWidget(this.filters);
+  PartiesWidget(this.filters, {this.joined = false});
 
   @override
-  _PartiesWidgetState createState() => _PartiesWidgetState(filters);
+  _PartiesWidgetState createState() => _PartiesWidgetState(filters, joined);
 }
 
 class _PartiesWidgetState extends State<PartiesWidget> {
   final _databaseReference = Firestore.instance;
-  Function filters;
+  final Function filters;
+  final joined;
 
-  _PartiesWidgetState(this.filters);
+  _PartiesWidgetState(this.filters, this.joined);
 
   UsersProvider _user;
 
@@ -29,11 +31,16 @@ class _PartiesWidgetState extends State<PartiesWidget> {
   Widget build(BuildContext context) {
     _user = Provider.of<UsersProvider>(context, listen: true);
     return StreamBuilder(
-        stream: _databaseReference
-            .collection('parties')
-            .where('date', isGreaterThan: DateTime.now())
-            .orderBy('date')
-            .snapshots(),
+        stream: joined
+            ? _databaseReference
+                .collection('parties')
+                .orderBy('date')
+                .snapshots()
+            : _databaseReference
+                .collection('parties')
+                .where('date', isGreaterThan: DateTime.now())
+                .orderBy('date')
+                .snapshots(),
         builder: (_, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) {
             return Container();

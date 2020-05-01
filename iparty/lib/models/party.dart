@@ -19,6 +19,7 @@ class Party {
   List<dynamic> playersUID;
   bool isRpg;
   bool isCampaign;
+  bool isFinished;
   bool isOnline;
   bool isSafe;
   String headquarter;
@@ -34,6 +35,7 @@ class Party {
     this.playersUID,
     @required this.isRpg,
     @required this.isCampaign,
+    this.isFinished,
     @required this.isOnline,
     @required this.isSafe,
     @required this.headquarter,
@@ -61,6 +63,7 @@ class Party {
       playersUID: data['playersUID'] ?? List(),
       isRpg: data['isRpg'] != null ? data['isRpg'] == '1' : true,
       isCampaign: data['isCampaign'] != null ? data['isCampaign'] == '1' : true,
+      isFinished: data['isFinished'] != null ? data['isFinished'] == '1' : false,
       isOnline: data['isOnline'] != null ? data['isOnline'] == '1' : true,
       isSafe: data['safe'] != null ? data['safe'] == '1' : true,
       headquarter: data['headquarter'],

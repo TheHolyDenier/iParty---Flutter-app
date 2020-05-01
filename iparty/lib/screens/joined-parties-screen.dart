@@ -46,23 +46,27 @@ class _PartiesScreenState extends State<PartiesScreen> {
           ),
         ],
       ),
-      body: PartiesWidget(_isPartyOk),
+      body: PartiesWidget(_isPartyOk, joined: true),
       drawer: MyDrawer(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () =>
-            Navigator.of(context).pushNamed(NewTableScreen.routeName),
-        child: Icon(Icons.add),
-      ),
     );
   }
 
   bool _isPartyOk(Party party, User user) {
 //    If you're in the party
     var joined = party.playersUID.contains(user.uid);
+    if (!joined) {
+      return joined;
+    }
+//    it's being played
+    var date = party.date.isBefore(DateTime.now());
+    if (date && (party.isCampaign && party.isFinished)) {
+      return false;
+    }
 //    If its your party
     var owner = party.playersUID[0] == user.uid;
 //    If you're a party member, but not owner
     var player = party.playersUID.contains(user.uid) && !owner;
+//    If it's active
     return joined && ((_master ? owner : false) || (_player ? player : false));
   }
 }
