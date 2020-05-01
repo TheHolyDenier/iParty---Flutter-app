@@ -110,6 +110,28 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
     );
   }
 
+  Future<void> _launchInBrowser(String url) async {
+    if (await canLaunch(url)) {
+      await launch(
+        url,
+        forceSafariVC: false,
+        forceWebView: false,
+        headers: <String, String>{'my_header_key': 'my_header_value'},
+      );
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  Widget _errorWidget(BuildContext context) {
+    return Center(
+      child: Text(
+        'Ha habido un error. Pruebe de nuevo más tarde',
+        style: TextStyle(color: Theme.of(context).errorColor),
+      ),
+    );
+  }
+
   Widget _partyDetails() {
     return Column(
       children: <Widget>[
@@ -144,10 +166,6 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
               width: double.infinity,
               child: Column(
                 children: <Widget>[
-                  if (!_party.isOnline)
-                    AddressWidget(
-                      latLng: _party.getLatLong(),
-                    ),
                   _party.isOnline && Uri.parse(_party.headquarter).isAbsolute
                       ? Container(
                           width: double.infinity,
@@ -178,42 +196,27 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
                             ),
                           ),
                         )
-                      : Container(
-                          width: double.infinity,
-                          child: Wrap(
-                            children: <Widget>[
-                              Text('La partida se hará a través de '),
-                              Text(
-                                '${_party.headquarter}.',
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                      : _party.isOnline
+                          ? Container(
+                              width: double.infinity,
+                              child: Wrap(
+                                children: <Widget>[
+                                  Text('La partida se hará a través de '),
+                                  Text(
+                                    '${_party.headquarter}.',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                ],
                               ),
-                            ],
-                          )),
+                            )
+                          : AddressWidget(
+                              latLng: _party.getLatLong(),
+                    controllerGeo: TextEditingController(),
+                            ),
                 ],
               ))
       ],
-    );
-  }
-
-  Future<void> _launchInBrowser(String url) async {
-    if (await canLaunch(url)) {
-      await launch(
-        url,
-        forceSafariVC: false,
-        forceWebView: false,
-        headers: <String, String>{'my_header_key': 'my_header_value'},
-      );
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
-
-  Widget _errorWidget(BuildContext context) {
-    return Center(
-      child: Text(
-        'Ha habido un error. Pruebe de nuevo más tarde',
-        style: TextStyle(color: Theme.of(context).errorColor),
-      ),
     );
   }
 
@@ -295,7 +298,7 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
   }
 
   Widget _playersInfo() {
-    List<dynamic> players = _party.playersUID;
+    List<dynamic> players = List.from(_party.playersUID);
     players.removeAt(0);
     return Card(
       child: Container(

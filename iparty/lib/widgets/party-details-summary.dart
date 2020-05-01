@@ -118,9 +118,7 @@ class _PartyDetailsWidgetState extends State<PartyDetailsWidget> {
   Widget _getDistanceWidget(BuildContext context) {
     if (!_provider.userGot || _provider.activeUser?.latitude != null)
       _getPlace();
-    else if (_provider.activeUser?.latitude != null) {
-      print('entra');
-    }
+
     return Column(
       children: <Widget>[
         Icon(Icons.location_on),
