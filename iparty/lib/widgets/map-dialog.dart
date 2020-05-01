@@ -4,25 +4,28 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapDialog extends StatefulWidget {
   final bool notSearching;
+  final LatLng latLng;
 
-  MapDialog({this.notSearching = true});
+  MapDialog({this.notSearching = true, this.latLng});
 
   @override
-  _MapDialogState createState() => _MapDialogState(notSearching);
+  _MapDialogState createState() =>
+      _MapDialogState(notSearching: notSearching, center: latLng);
 }
 
 class _MapDialogState extends State<MapDialog> {
   bool _searchLoc = false;
   bool _searchingByAddress = true;
-  LatLng _center = const LatLng(40.974737, -5.672455);
+  LatLng center;
   GoogleMapController _mapController;
   Map<MarkerId, Marker> _marker = <MarkerId, Marker>{};
   final _searchAddressController = TextEditingController();
   final double _zoom = 18.0;
   final _markerId = MarkerId('headquarter');
-  final bool _notSearching;
+  final bool notSearching;
 
-  _MapDialogState(this._notSearching);
+  _MapDialogState(
+      {this.notSearching, this.center = const LatLng(40.974737, -5.672455)});
 
   @override
   void dispose() {
@@ -38,25 +41,31 @@ class _MapDialogState extends State<MapDialog> {
       await Geolocator()
           .getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
           .then((Position position) {
-        _center = LatLng(position.latitude, position.longitude);
-        _moveMarker(_center);
+            print('_getCurrentLocation: $position');
+        center = LatLng(position.latitude, position.longitude);
+        _moveMarker(center);
       });
-
       _searchLoc = true;
     }
   }
 
 //  Moves camera to current location and sets marker
   void _moveMarker(LatLng position) {
-    _mapController.animateCamera(CameraUpdate.newCameraPosition(
-      CameraPosition(target: position, zoom: _zoom),
-    ));
+    if (position == null) position = center;
+    print('${position}');
+    var cameraUpdate = CameraUpdate.newCameraPosition(
+        CameraPosition(target: position, zoom: _zoom));
+    _mapController.moveCamera(cameraUpdate);
+    _setMarker(position);
+  }
+
+  void _setMarker(LatLng position) {
     final Marker marker = Marker(
       markerId: _markerId,
       position: position,
       draggable: true,
       onDragEnd: ((value) {
-        _center = LatLng(value.latitude, value.longitude);
+        center = LatLng(value.latitude, value.longitude);
       }),
     );
 
@@ -66,22 +75,25 @@ class _MapDialogState extends State<MapDialog> {
   }
 
   void _onCameraMove(CameraPosition position) {
-    _center = position.target;
+    center = position.target;
   }
 
   @override
   Widget build(BuildContext context) {
-    _getCurrentLocation();
+    if (notSearching)
+      _getCurrentLocation();
+    else
+      _setMarker(center);
     return Scaffold(
         appBar: AppBar(
           actions: <Widget>[
-            if (_notSearching)
+            if (notSearching)
               FlatButton(
                 child: Icon(Icons.done),
                 onPressed: _marker.length == 0
                     ? null
                     : () => Navigator.pop(
-                    context, '${_center.latitude}_${_center.longitude}'),
+                        context, '${center.latitude}_${center.longitude}'),
               )
           ],
           title: FittedBox(
@@ -99,7 +111,7 @@ class _MapDialogState extends State<MapDialog> {
                   _mapController = controller;
                 },
                 initialCameraPosition: CameraPosition(
-                  target: _center,
+                  target: center?? LatLng(40.974737, -5.672455),
                   zoom: _zoom,
                 ),
                 markers: Set<Marker>.of(_marker.values),
@@ -171,8 +183,10 @@ class _MapDialogState extends State<MapDialog> {
     await Geolocator()
         .placemarkFromAddress(address)
         .then((List<Placemark> placemarks) {
-      _moveMarker(LatLng(
-          placemarks[0].position.latitude, placemarks[0].position.longitude));
+      if (placemarks != null) {
+        _moveMarker(LatLng(
+            placemarks[0].position.latitude, placemarks[0].position.longitude));
+      }
     });
   }
 }
