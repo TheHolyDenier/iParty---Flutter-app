@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:iparty/screens/joined-parties-screen.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -99,6 +100,7 @@ class MyApp extends StatelessWidget {
           AuthScreen.routeName: (context) => AuthScreen(),
           SplashPage.routeName: (context) => SplashPage(),
           HomeScreen.routeName: (context) => HomeScreen(),
+          PartiesScreen.routeName: (context) => PartiesScreen(),
           NewTableScreen.routeName: (context) => NewTableScreen(),
           PartySummaryScreen.routeName: (context) => PartySummaryScreen(),
           EditProfileScreen.routeName: (context) => EditProfileScreen(),

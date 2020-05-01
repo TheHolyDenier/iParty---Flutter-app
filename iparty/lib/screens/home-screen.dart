@@ -1,9 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:iparty/screens/loading-screen.dart';
-import 'package:iparty/screens/table-screen.dart';
-import 'package:iparty/widgets/drawer.dart';
-import 'package:iparty/widgets/loading-parties.dart';
 
 import 'package:latlong/latlong.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +8,10 @@ import '../providers/logged-user.dart';
 import '../providers/users.dart';
 import '../models/party.dart';
 import '../models/user.dart';
+import './loading-screen.dart';
+import './table-screen.dart';
+import '../widgets/drawer.dart';
+import '../widgets/loading-parties.dart';
 
 class HomeScreen extends StatefulWidget {
   static final routeName = '/home-screen';
@@ -36,7 +36,6 @@ class _HomeScreenState extends State<HomeScreen> {
           .then((authUser) {
         setState(() {
           _uid = authUser.uid;
-//          _users.addOneUser(authUser.uid, true);
           _isInit = false;
         });
       });
