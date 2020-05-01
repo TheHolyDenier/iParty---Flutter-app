@@ -53,20 +53,19 @@ class _PartiesScreenState extends State<PartiesScreen> {
 
   bool _isPartyOk(Party party, User user) {
 //    If you're in the party
-    var joined = party.playersUID.contains(user.uid);
-    if (!joined) {
-      return joined;
+    if (!party.playersUID.contains(user.uid)) {
+      return false;
+//      If it's being played and on date
     }
-//    it's being played
-    var date = party.date.isBefore(DateTime.now());
-    if (date && (party.isCampaign && party.isFinished)) {
+    if (party.date.isBefore(DateTime.now()) &&
+        !(party.isCampaign && !party.isFinished)) {
       return false;
     }
-//    If its your party
+    //    If its your party
     var owner = party.playersUID[0] == user.uid;
 //    If you're a party member, but not owner
     var player = party.playersUID.contains(user.uid) && !owner;
 //    If it's active
-    return joined && ((_master ? owner : false) || (_player ? player : false));
+    return (_master ? owner : false) || (_player ? player : false);
   }
 }

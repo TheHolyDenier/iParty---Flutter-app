@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:iparty/widgets/profile-widget.dart';
+import 'package:iparty/widgets/party-actions-widget.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -15,6 +15,7 @@ import '../widgets/geo-field.dart';
 import '../widgets/party-details-summary.dart';
 import '../widgets/avatar-circles.dart';
 import '../widgets/party-cover.dart';
+import '../widgets/profile-widget.dart';
 
 class PartySummaryScreen extends StatefulWidget {
   static final routeName = '/party-summary';
@@ -29,6 +30,7 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
   UsersProvider _provider;
   Party _party;
   Color _color = Colors.white;
+  bool _isOwner;
   bool _gotColor = false;
   StatusJoin _statusJoin = StatusJoin.NaN;
 
@@ -40,6 +42,7 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
       _gotColor = true;
     }
     _provider = Provider.of<UsersProvider>(context, listen: false);
+    _isOwner = _provider.activeUser.uid == _party.playersUID[0];
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -108,6 +111,7 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
           ],
         ),
       ),
+      floatingActionButton: PartyActionsWidget(),
     );
   }
 
