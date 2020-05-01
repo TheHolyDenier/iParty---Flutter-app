@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:iparty/providers/users.dart';
 import 'package:provider/provider.dart';
 
 import '../models/party.dart';
 import '../screens/party-summary.dart';
 import './party-cover.dart';
 import './party-details-summary.dart';
+import 'package:iparty/providers/users.dart';
+
 
 class PartiesWidget extends StatefulWidget {
   final Function filters;

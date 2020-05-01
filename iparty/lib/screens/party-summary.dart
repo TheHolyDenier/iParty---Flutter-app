@@ -85,14 +85,6 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
                   // JOINED
                   if (_statusJoin == StatusJoin.Error)
                     _errorWidget(context),
-                  // STATUS ERROR
-                  if (_party.players['max'] > _party.playersUID.length - 1 &&
-                      !_party.playersUID.contains(_provider.activeUser.uid))
-                    RaisedButton(
-                      // JOIN IF NOT OWNER - PARTY MEMBER
-                      child: Text('¡Apúntate!'),
-                      onPressed: _joinParty,
-                    ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: Card(
@@ -111,7 +103,20 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
           ],
         ),
       ),
-      floatingActionButton: _isOwner ? PartyActionsWidget() : Container(),
+      floatingActionButton: _isOwner
+          ? PartyActionsWidget()
+          : _party.playersUID.contains(_provider.activeUser.uid)
+              ? FloatingActionButton(
+                  child: Icon(Icons.not_interested),
+                  onPressed: () {},
+                )
+              : _party.players['max'] > _party.playersUID.length - 1 &&
+                      !_party.playersUID.contains(_provider.activeUser.uid)
+                  ? FloatingActionButton( // JOIN IF NOT OWNER - PARTY MEMBER
+                      child: Icon(Icons.person_add),
+                      onPressed: _joinParty,
+                    )
+                  : Container(),
     );
   }
 

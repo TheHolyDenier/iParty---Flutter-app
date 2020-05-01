@@ -69,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   bool _isPartyOk(Party party, User user) {
-    var owner = party.playersUID[0] != user?.uid;
+    var joined = !party.playersUID.contains(user.uid);
     var rpg = party.isRpg ? user.rpg : true;
     var table = !party.isRpg ? user?.table : true;
     var safe = user.safe ? party.isSafe : true;
@@ -82,6 +82,6 @@ class _HomeScreenState extends State<HomeScreen> {
           LatLng(party.getLatLong().latitude, party.getLatLong().longitude));
       farAway = distance <= user.km;
     }
-    return owner && rpg && table && safe && online && farAway;
+    return joined && rpg && table && safe && online && farAway;
   }
 }
