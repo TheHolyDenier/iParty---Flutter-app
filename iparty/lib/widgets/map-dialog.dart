@@ -3,8 +3,12 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapDialog extends StatefulWidget {
+  final bool notSearching;
+
+  MapDialog({this.notSearching = true});
+
   @override
-  _MapDialogState createState() => _MapDialogState();
+  _MapDialogState createState() => _MapDialogState(notSearching);
 }
 
 class _MapDialogState extends State<MapDialog> {
@@ -16,6 +20,9 @@ class _MapDialogState extends State<MapDialog> {
   final _searchAddressController = TextEditingController();
   final double _zoom = 18.0;
   final _markerId = MarkerId('headquarter');
+  final bool _notSearching;
+
+  _MapDialogState(this._notSearching);
 
   @override
   void dispose() {
@@ -68,13 +75,14 @@ class _MapDialogState extends State<MapDialog> {
     return Scaffold(
         appBar: AppBar(
           actions: <Widget>[
-            FlatButton(
-              child: Icon(Icons.done),
-              onPressed: _marker.length == 0
-                  ? null
-                  : () => Navigator.pop(context,
-                      '${_center.latitude}_${_center.longitude}'),
-            )
+            if (_notSearching)
+              FlatButton(
+                child: Icon(Icons.done),
+                onPressed: _marker.length == 0
+                    ? null
+                    : () => Navigator.pop(
+                    context, '${_center.latitude}_${_center.longitude}'),
+              )
           ],
           title: FittedBox(
             fit: BoxFit.fitWidth,
@@ -106,55 +114,55 @@ class _MapDialogState extends State<MapDialog> {
 
   FloatingActionButton _widgetSearchButton() {
     return FloatingActionButton(
-            child: Icon(Icons.search),
-            onPressed: () {
-              if (!_searchingByAddress) {
-                setState(() => _searchingByAddress = true);
-              } else {
-                _searchByAddress();
-              }
-            },
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            focusElevation: 0,
-            hoverElevation: 0,
-            highlightElevation: 0,
-            disabledElevation: 0,
-          );
+      child: Icon(Icons.search),
+      onPressed: () {
+        if (!_searchingByAddress) {
+          setState(() => _searchingByAddress = true);
+        } else {
+          _searchByAddress();
+        }
+      },
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      focusElevation: 0,
+      hoverElevation: 0,
+      highlightElevation: 0,
+      disabledElevation: 0,
+    );
   }
 
   Positioned _widgetSearchBar() {
     return Positioned(
-            top: 0,
-            right: _searchingByAddress ? 0 : (double.infinity),
-            left: 0,
-            child: Container(
-              height: 60,
-              padding: EdgeInsets.all(8),
-              child: TextField(
-                controller: _searchAddressController,
-                onSubmitted: (_) => _searchByAddress(),
-                decoration: InputDecoration(
-                    hintText: 'Calle, número, código postal...',
-                    hintStyle: TextStyle(color: Colors.black),
-                    fillColor: Colors.black.withOpacity(0.1),
-                    filled: true,
-                    suffixIcon: _searchingByAddress
-                        ? IconButton(
-                            icon: Icon(Icons.cancel),
-                            onPressed: () {
-                              setState(() => _searchingByAddress = false);
-                              _searchAddressController.text = '';
-                            },
-                          )
-                        : null,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none),
-                    contentPadding: EdgeInsets.only(left: 35)),
-              ),
-            ),
-          );
+      top: 0,
+      right: _searchingByAddress ? 0 : (double.infinity),
+      left: 0,
+      child: Container(
+        height: 60,
+        padding: EdgeInsets.all(8),
+        child: TextField(
+          controller: _searchAddressController,
+          onSubmitted: (_) => _searchByAddress(),
+          decoration: InputDecoration(
+              hintText: 'Calle, número, código postal...',
+              hintStyle: TextStyle(color: Colors.black),
+              fillColor: Colors.black.withOpacity(0.1),
+              filled: true,
+              suffixIcon: _searchingByAddress
+                  ? IconButton(
+                      icon: Icon(Icons.cancel),
+                      onPressed: () {
+                        setState(() => _searchingByAddress = false);
+                        _searchAddressController.text = '';
+                      },
+                    )
+                  : null,
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none),
+              contentPadding: EdgeInsets.only(left: 35)),
+        ),
+      ),
+    );
   }
 
 //  Searches lat/long by address

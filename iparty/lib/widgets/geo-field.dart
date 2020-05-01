@@ -65,7 +65,9 @@ class _AddressWidgetState extends State<AddressWidget> {
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
-        return MapDialog();
+        return MapDialog(
+          notSearching: callback != null,
+        );
       },
     ).then((result) async {
       // Translates address
