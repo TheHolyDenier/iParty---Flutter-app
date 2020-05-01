@@ -16,8 +16,8 @@ class ProfileWidget extends StatelessWidget {
           Hero(
             tag: user.uid,
             child: Container(
-              width: 80,
-              height: 80,
+              width: 100,
+              height: 100,
               child: user.imageUrl == ''
                   ? MyTextAvatarCircle(user.displayName[0])
                   : MyImageAvatarCircle(user.imageUrl, true),
