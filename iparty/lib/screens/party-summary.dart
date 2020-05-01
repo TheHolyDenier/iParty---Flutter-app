@@ -357,12 +357,6 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
     );
   }
 
-  void _getUsers() {
-    for (String uid in _party.playersUID) {
-      _provider.addOneUser(uid, false);
-    }
-  }
-
   Future<void> _getColor() async {
     String url;
     if (_party.imageUrl == '') {
@@ -391,7 +385,6 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
 //      Sets ok message
       setState(() {
         _statusJoin = StatusJoin.Ok;
-        _getUsers();
       });
     }).catchError((error) {
       // Not ok

@@ -1,15 +1,17 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:iparty/models/party.dart';
-import 'package:iparty/models/user.dart';
+import 'package:iparty/screens/loading-screen.dart';
+import 'package:iparty/screens/table-screen.dart';
+import 'package:iparty/widgets/drawer.dart';
+import 'package:iparty/widgets/loading-parties.dart';
+
 import 'package:latlong/latlong.dart';
 import 'package:provider/provider.dart';
 
-import './table-screen.dart';
-import './loading-screen.dart';
 import '../providers/logged-user.dart';
 import '../providers/users.dart';
-import '../widgets/drawer.dart';
-import '../widgets/loading-parties.dart';
+import '../models/party.dart';
+import '../models/user.dart';
 
 class HomeScreen extends StatefulWidget {
   static final routeName = '/home-screen';
@@ -21,6 +23,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   var _isInit = true;
   UsersProvider _users;
+  final _databaseReference = Firestore.instance;
+  String _uid = '';
 
   @override
   void didChangeDependencies() {
@@ -31,7 +35,8 @@ class _HomeScreenState extends State<HomeScreen> {
           .getUId()
           .then((authUser) {
         setState(() {
-          _users.addOneUser(authUser.uid, true);
+          _uid = authUser.uid;
+//          _users.addOneUser(authUser.uid, true);
           _isInit = false;
         });
       });
@@ -40,9 +45,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return _isInit
-        ? LoadingPage()
-        : Scaffold(
+    return StreamBuilder(
+        stream:
+            _databaseReference.collection('users').document(_uid).snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return LoadingPage();
+          }
+          var user = User.fromFirestore(snapshot.data);
+          _users.setActiveUser(user);
+          return Scaffold(
             appBar: AppBar(
               title: Text('Mesas disponibles'),
             ),
@@ -54,6 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Icon(Icons.add),
             ),
           );
+        });
   }
 
   bool _isPartyOk(Party party, User user) {
