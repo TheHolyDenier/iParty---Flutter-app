@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:iparty/providers/users.dart';
 import 'package:latlong/latlong.dart';
+import 'package:provider/provider.dart';
 
 import '../models/party.dart';
 import '../models/user.dart';
@@ -9,23 +11,25 @@ import './party-cover.dart';
 import './party-details-summary.dart';
 
 class PartiesWidget extends StatefulWidget {
-  User user;
+  final Function filters;
 
-  PartiesWidget(this.user);
+  PartiesWidget(this.filters);
 
   @override
-  _PartiesWidgetState createState() => _PartiesWidgetState(user);
+  _PartiesWidgetState createState() => _PartiesWidgetState(filters);
 }
 
 class _PartiesWidgetState extends State<PartiesWidget> {
   final _databaseReference = Firestore.instance;
+  Function filters;
 
-  User user;
+  _PartiesWidgetState(this.filters);
 
-  _PartiesWidgetState(this.user);
+  UsersProvider _user;
 
   @override
   Widget build(BuildContext context) {
+    _user = Provider.of<UsersProvider>(context, listen: true);
     return StreamBuilder(
         stream: _databaseReference
             .collection('parties')
@@ -47,7 +51,9 @@ class _PartiesWidgetState extends State<PartiesWidget> {
     return snapshot.data.documents.map((doc) {
       Party party = Party.fromFirestore(doc);
 
-      return _isPartyOk(party) ? _getPartyDetails(party) : Container();
+      return filters(party, _user.activeUser)
+          ? _getPartyDetails(party)
+          : Container();
     }).toList();
   }
 
@@ -140,22 +146,5 @@ class _PartiesWidgetState extends State<PartiesWidget> {
         ),
       ),
     );
-  }
-
-  bool _isPartyOk(Party party) {
-    var owner = party.playersUID[0] != user?.uid;
-    var rpg = party.isRpg ? user?.rpg : true;
-    var table = !party.isRpg ? user?.table : true;
-    var safe = user.safe ? party.isSafe : true;
-    var online = party.isOnline ? user.online : true;
-    var farAway = true;
-    if (!party.isOnline && user?.latitude != null && user.km >= 1.0) {
-      var distance = Distance().as(
-          LengthUnit.Kilometer,
-          LatLng(user?.latitude, user.longitude),
-          LatLng(party.getLatLong().latitude, party.getLatLong().longitude));
-      farAway = distance <= user.km;
-    }
-    return owner && rpg && table && safe && online && farAway;
   }
 }
