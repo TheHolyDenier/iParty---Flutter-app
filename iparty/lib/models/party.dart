@@ -67,7 +67,6 @@ class Party {
       isOnline: data['isOnline'] != null ? data['isOnline'] == '1' : true,
       isSafe: data['safe'] != null ? data['safe'] == '1' : true,
       headquarter: data['headquarter'],
-//      date: DateTime.fromMillisecondsSinceEpoch(data['date']),
       date: data['date'].toDate(),
     );
   }
