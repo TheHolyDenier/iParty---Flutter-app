@@ -104,20 +104,22 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
         ),
       ),
       floatingActionButton: _isOwner
-          ? PartyActionsWidget()
-          : _party.playersUID.contains(_provider.activeUser.uid)
+          ? PartyActionsWidget(_party, _callback)
+          : _party.players['max'] > _party.playersUID.length - 1 &&
+                  !_party.playersUID.contains(_provider.activeUser.uid)
               ? FloatingActionButton(
-                  child: Icon(Icons.not_interested),
-                  onPressed: () {},
+                  // JOIN IF NOT OWNER - PARTY MEMBER
+                  child: Icon(Icons.person_add),
+                  onPressed: _joinParty,
                 )
-              : _party.players['max'] > _party.playersUID.length - 1 &&
-                      !_party.playersUID.contains(_provider.activeUser.uid)
-                  ? FloatingActionButton( // JOIN IF NOT OWNER - PARTY MEMBER
-                      child: Icon(Icons.person_add),
-                      onPressed: _joinParty,
-                    )
-                  : Container(),
+              : Container(),
     );
+  }
+
+  void _callback(Party party) {
+    setState(() {
+      _party = party;
+    });
   }
 
   Future<void> _launchInBrowser(String url) async {

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../models/party.dart';
 import '../models/user.dart';
-import './table-screen.dart';
 import '../widgets/drawer.dart';
 import '../widgets/loading-parties.dart';
 
@@ -52,11 +51,7 @@ class _PartiesScreenState extends State<PartiesScreen> {
   }
 
   bool _isPartyOk(Party party, User user) {
-//    If you're in the party
-    if (!party.playersUID.contains(user.uid)) {
-      return false;
 //      If it's being played and on date
-    }
     if (party.date.isBefore(DateTime.now()) &&
         !(party.isCampaign && !party.isFinished)) {
       return false;

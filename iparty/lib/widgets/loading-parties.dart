@@ -8,7 +8,6 @@ import './party-cover.dart';
 import './party-details-summary.dart';
 import 'package:iparty/providers/users.dart';
 
-
 class PartiesWidget extends StatefulWidget {
   final Function filters;
   final bool joined;
@@ -35,6 +34,7 @@ class _PartiesWidgetState extends State<PartiesWidget> {
         stream: joined
             ? _databaseReference
                 .collection('parties')
+                .where('playersUID', arrayContains: _user.activeUser.uid)
                 .orderBy('date')
                 .snapshots()
             : _databaseReference
