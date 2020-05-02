@@ -5,6 +5,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_fab_dialer/flutter_fab_dialer.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:iparty/models/user.dart';
+import 'package:iparty/widgets/delete-user-dialog.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 
 import '../models/party.dart';
@@ -15,12 +17,13 @@ import '../widgets/profilepic-picker.dart';
 class PartyActionsWidget extends StatefulWidget {
   final Party party;
   final Function callback;
+  final Map<String, User> listUsers;
 
-  PartyActionsWidget(this.party, this.callback);
+  PartyActionsWidget(this.party, this.callback, this.listUsers);
 
   @override
   _PartyActionsWidgetState createState() =>
-      _PartyActionsWidgetState(party, callback);
+      _PartyActionsWidgetState(party, callback, listUsers);
 }
 
 class _PartyActionsWidgetState extends State<PartyActionsWidget> {
@@ -30,18 +33,21 @@ class _PartyActionsWidgetState extends State<PartyActionsWidget> {
   Function _callback;
   String _tempUrl;
   ProgressDialog _progressDialog;
+  Map<String, User> _listUsers;
+  ThemeData _themeData;
 
-  _PartyActionsWidgetState(this._party, this._callback);
+  _PartyActionsWidgetState(this._party, this._callback, this._listUsers);
 
   @override
   Widget build(BuildContext context) {
-    _genList(Theme.of(context));
+    _themeData = Theme.of(context);
+    _genList();
     return FabDialer(_fabMiniMenuItemList, Theme.of(context).accentColor,
         new Icon(Icons.settings));
   }
 
-  void _genList(ThemeData themeData) {
-    var background = themeData.accentColor;
+  void _genList() {
+    var background = _themeData.accentColor;
     _fabMiniMenuItemList = [];
     if (_party.isCampaign && _party.date.isBefore(DateTime.now()))
       _fabMiniMenuItemList.add(FabMiniMenuItem.withText(
@@ -74,19 +80,39 @@ class _PartyActionsWidgetState extends State<PartyActionsWidget> {
         Colors.white,
         Colors.black,
         true));
-    _fabMiniMenuItemList.add(FabMiniMenuItem.withText(
-        new Icon(Icons.not_interested),
-        background,
-        4.0,
-        '',
-        () {},
-        'Eliminar jugador',
-        Colors.white,
-        Colors.black,
-        true));
+      _fabMiniMenuItemList.add(FabMiniMenuItem.withText(
+          new Icon(Icons.not_interested),
+          background,
+          4.0,
+          '',
+          _deletePlayer,
+          'Eliminar jugador',
+          Colors.white,
+          Colors.black,
+          true));
   }
 
   void _addPlayer() {}
+
+  void _deletePlayer() {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return DialogDeleteUser(_listUsers, _party.uid, _updateUsers);
+      },
+    );
+  }
+
+  _updateUsers(Map<String, User> listUsers) {
+    List<String> keys = List();
+    setState(() {
+      _listUsers = listUsers;
+      _listUsers.forEach((key, value) => keys.add(key));
+      _party.playersUID = keys;
+      _callback(_party);
+    });
+  }
 
 //  CHOSES NEW COVER
   void _choseImage() async {

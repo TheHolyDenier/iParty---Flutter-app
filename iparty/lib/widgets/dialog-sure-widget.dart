@@ -10,7 +10,9 @@ class DialogSureWidget extends StatelessWidget {
     return AlertDialog(
       title: Text(title),
       content: SingleChildScrollView(
-        child: Text(text),
+        child: Column(
+          children: <Widget>[Text(text)],
+        ),
       ),
       actions: <Widget>[
         FlatButton(

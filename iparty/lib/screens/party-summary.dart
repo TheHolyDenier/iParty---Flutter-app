@@ -26,6 +26,7 @@ class PartySummaryScreen extends StatefulWidget {
 
 class _PartySummaryScreenState extends State<PartySummaryScreen> {
   final _databaseReference = Firestore.instance;
+  Map<String, User> _listUsers = new Map();
 
   UsersProvider _provider;
   Party _party;
@@ -104,7 +105,7 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
         ),
       ),
       floatingActionButton: _isOwner
-          ? PartyActionsWidget(_party, _callback)
+          ? PartyActionsWidget(_party, _callback, _listUsers)
           : _party.players['max'] > _party.playersUID.length - 1 &&
                   !_party.playersUID.contains(_provider.activeUser.uid)
               ? FloatingActionButton(
@@ -319,6 +320,7 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
             );
           }
           var user = User.fromFirestore(snapshot.data);
+            _listUsers[user.uid] = user;
           return _seeProfile(user);
         });
   }
@@ -420,6 +422,7 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
             );
           }
           var activeUser = User.fromFirestore(snapshot.data);
+            _listUsers[activeUser.uid] = activeUser;
           return _ownerWidget(activeUser, context);
         });
   }
