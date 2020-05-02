@@ -4,12 +4,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_fab_dialer/flutter_fab_dialer.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 
-import 'package:iparty/models/party.dart';
-import 'package:iparty/screens/joined-parties-screen.dart';
-import 'package:iparty/widgets/dialog-sure-widget.dart';
-import 'package:iparty/widgets/profilepic-picker.dart';
-import 'package:iparty/widgets/uploading-dialog.dart';
+import '../models/party.dart';
+import '../screens/joined-parties-screen.dart';
+import '../widgets/dialog-sure-widget.dart';
+import '../widgets/profilepic-picker.dart';
 
 class PartyActionsWidget extends StatefulWidget {
   final Party party;
@@ -28,7 +29,7 @@ class _PartyActionsWidgetState extends State<PartyActionsWidget> {
   Party _party;
   Function _callback;
   String _tempUrl;
-  bool _closeDialog = false;
+  ProgressDialog _progressDialog;
 
   _PartyActionsWidgetState(this._party, this._callback);
 
@@ -87,6 +88,7 @@ class _PartyActionsWidgetState extends State<PartyActionsWidget> {
 
   void _addPlayer() {}
 
+//  CHOSES NEW COVER
   void _choseImage() async {
     await showDialog<String>(
       context: context,
@@ -104,6 +106,7 @@ class _PartyActionsWidgetState extends State<PartyActionsWidget> {
     });
   }
 
+//   UPLOADS IMAGE AND SAVES URL
   Future _uploadImage(url) async {
     final FirebaseStorage _storage =
         FirebaseStorage(storageBucket: 'gs://iparty-goblin-d1e76.appspot.com');
@@ -117,15 +120,10 @@ class _PartyActionsWidgetState extends State<PartyActionsWidget> {
     return url;
   }
 
+//  UPDATE PICTURE IN OBJECT
   _savePic() async {
-    setState(() {
-      _closeDialog = false;
-    });
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => UploadingDialog(_closeDialog),
-    );
+    _setProgressDialog();
+    _progressDialog.show(); // SHOWS DIALOG
     var url;
     if (_tempUrl != '') {
       url = await _uploadImage(url);
@@ -141,17 +139,33 @@ class _PartyActionsWidgetState extends State<PartyActionsWidget> {
         _party.imageUrl = url;
       });
       _callback(_party);
-      setState(() {
-        _closeDialog = true;
-      });
+      _progressDialog.hide(); // HIDES MESSAGE
     }).catchError((error) {
       print(error.toString());
-      setState(() {
-        _closeDialog = true;
-      });
+      _progressDialog.hide(); // HIDES MESSAGE
     });
   }
 
+//  SETS OPTIONS DIALOG
+  void _setProgressDialog() {
+    _progressDialog = ProgressDialog(context,
+        type: ProgressDialogType.Normal, isDismissible: false, showLogs: false);
+    _progressDialog.style(
+      message: 'Se está guardando su nueva portada',
+      borderRadius: 10.0,
+      backgroundColor: Colors.white,
+      progressWidget: SpinKitWanderingCubes(
+        color: Theme.of(context).primaryColor,
+        size: 20.0,
+      ),
+      elevation: 10.0,
+      insetAnimCurve: Curves.easeInOut,
+      progress: 0.0,
+      maxProgress: 100.0,
+    );
+  }
+
+//  CLOSES CAMPAIGN
   void _finishCampaign() {
     showDialog<int>(
       context: context,
@@ -175,22 +189,4 @@ class _PartyActionsWidgetState extends State<PartyActionsWidget> {
       }
     });
   }
-
-//  void _joinParty() {
-//    _party.playersUID.add('${_provider.activeUser.uid}');
-//    Firestore.instance.collection('parties').document(_party.uid).updateData({
-//      'playersUID': _party.playersUID,
-//    }).then((_) {
-////      Sets ok message
-//      setState(() {
-//        _statusJoin = StatusJoin.Ok;
-//      });
-//    }).catchError((error) {
-//      // Not ok
-//      setState(() {
-//        _statusJoin = StatusJoin.Error;
-//      });
-//      print(error.toString());
-//    });
-//  }
 }
