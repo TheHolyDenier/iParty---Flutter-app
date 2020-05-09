@@ -3,12 +3,11 @@ import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:iparty/screens/chat-screen.dart';
-import 'package:iparty/widgets/party-actions-widget.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import './chat-screen.dart';
 import '../models/party.dart';
 import '../models/user.dart';
 import '../providers/users.dart';
@@ -16,6 +15,7 @@ import '../widgets/geo-field.dart';
 import '../widgets/party-details-summary.dart';
 import '../widgets/avatar-circles.dart';
 import '../widgets/party-cover.dart';
+import '../widgets/party-actions-widget.dart';
 import '../widgets/profile-widget.dart';
 
 class PartySummaryScreen extends StatefulWidget {
@@ -292,7 +292,25 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
       padding: const EdgeInsets.all(5.0),
       width: double.infinity,
       color: Colors.black45,
-      child: ListTile(
+      child: _party.playersUID.contains(_provider.activeUser.uid)
+          ? _listTileWithChat(owner, context)
+          : _listTileWithoutChat(owner, context),
+    );
+  }
+
+  Widget _listTileWithoutChat(User owner, BuildContext context) {
+    return ListTile(
+      leading: _seeProfile(owner),
+      title: Text(
+        owner?.displayName,
+        style:
+            Theme.of(context).textTheme.headline6.copyWith(color: Colors.white),
+      ),
+    );
+  }
+
+  Widget _listTileWithChat(User owner, BuildContext context) {
+    return ListTile(
         leading: _seeProfile(owner),
         title: Text(
           owner?.displayName,
@@ -303,16 +321,14 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
         ),
         trailing: IconButton(
           icon: Icon(
-            Icons.navigate_next,
+            Icons.chat,
             color: Colors.white,
           ),
           onPressed: () {
             Navigator.of(context).pushNamed(ChatScreen.routeName,
                 arguments: ChatArguments(_party, _listUsers));
           },
-        ),
-      ),
-    );
+        ));
   }
 
   Widget _getAllPlayers(String uid) {

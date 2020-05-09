@@ -42,34 +42,38 @@ class _DialogDeleteUserState extends State<DialogDeleteUser> {
     List<User> users = List();
     _listUsers.forEach((key, value) => users.add(value));
     users.removeAt(0);
-    return ListView.builder(
-      itemCount: users.length,
-      itemBuilder: (context, index) {
-        User user = users[index];
-        return ListTile(
-          leading: user.imageUrl == ''
-              ? MyTextAvatarCircle(user.displayName[0])
-              : MyImageAvatarCircle(user.imageUrl, true),
-          title: Text('${user.displayName}'),
-          trailing: IconButton(
-            onPressed: () {
-              showDialog<int>(
-                context: context,
-                barrierDismissible: true,
-                builder: (BuildContext context) {
-                  return DialogSureWidget(
-                      'Va a eliminar a ${user.displayName}', '¿Está seguro?');
-                },
-              ).then((value) {
-                if (value == 1) {
-                  _updateFirebase(user, context);
-                }
-              });
-            },
-            icon: Icon(Icons.delete),
-          ),
-        );
-      },
+    return Container(
+      height: 50.0,
+      width: 50.0,
+      child: ListView.builder(
+        itemCount: users.length,
+        itemBuilder: (context, index) {
+          User user = users[index];
+          return ListTile(
+            leading: user.imageUrl == ''
+                ? MyTextAvatarCircle(user.displayName[0])
+                : MyImageAvatarCircle(user.imageUrl, true),
+            title: Text('${user.displayName}'),
+            trailing: IconButton(
+              onPressed: () {
+                showDialog<int>(
+                  context: context,
+                  barrierDismissible: true,
+                  builder: (BuildContext context) {
+                    return DialogSureWidget(
+                        'Va a eliminar a ${user.displayName}', '¿Está seguro?');
+                  },
+                ).then((value) {
+                  if (value == 1) {
+                    _updateFirebase(user, context);
+                  }
+                });
+              },
+              icon: Icon(Icons.delete),
+            ),
+          );
+        },
+      ),
     );
   }
 
