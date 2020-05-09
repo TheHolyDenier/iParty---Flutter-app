@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:iparty/screens/chat-screen.dart';
 import 'package:iparty/widgets/party-actions-widget.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:provider/provider.dart';
@@ -300,9 +301,15 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
               .headline6
               .copyWith(color: Colors.white),
         ),
-        trailing: Icon(
-          Icons.navigate_next,
-          color: Colors.white,
+        trailing: IconButton(
+          icon: Icon(
+            Icons.navigate_next,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            Navigator.of(context).pushNamed(ChatScreen.routeName,
+                arguments: ChatArguments(_party, _listUsers));
+          },
         ),
       ),
     );

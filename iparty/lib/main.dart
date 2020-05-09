@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:iparty/screens/chat-screen.dart';
 import 'package:iparty/screens/joined-parties-screen.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -104,6 +105,7 @@ class MyApp extends StatelessWidget {
           NewTableScreen.routeName: (context) => NewTableScreen(),
           PartySummaryScreen.routeName: (context) => PartySummaryScreen(),
           EditProfileScreen.routeName: (context) => EditProfileScreen(),
+          ChatScreen.routeName: (context) => ChatScreen(),
         },
       ),
       providers: [
