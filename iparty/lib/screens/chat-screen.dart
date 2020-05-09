@@ -1,16 +1,14 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dash_chat/dash_chat.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:iparty/providers/users.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 
 import '../models/party.dart';
 import '../models/user.dart';
+import '../providers/users.dart';
 
 class ChatScreen extends StatefulWidget {
   static final routeName = '/chat';
@@ -23,8 +21,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final GlobalKey<DashChatState> _chatViewKey = GlobalKey<DashChatState>();
   final _databaseReference = Firestore.instance;
   Party _party;
-  Map<String, ChatUser> _users = Map();
-  String _user;
+  ChatUser _user;
 
   List<ChatMessage> messages = List<ChatMessage>();
   var m = List<ChatMessage>();
@@ -47,10 +44,9 @@ class _ChatScreenState extends State<ChatScreen> {
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    Theme.of(context).primaryColor,
-                  ),
+                child: SpinKitWanderingCubes(
+                  color: Theme.of(context).accentColor,
+                  size: 25.0,
                 ),
               );
             } else {
@@ -63,7 +59,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 onSend: onSend,
                 sendOnEnter: true,
                 textInputAction: TextInputAction.send,
-                user: _users[_user],
+                user: _user,
                 inputDecoration: InputDecoration.collapsed(
                     hintText: 'Escribe tu mensaje aquí...'),
                 dateFormat: DateFormat('dd/MM/yyyy'),
@@ -71,13 +67,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 messages: messages,
                 showUserAvatar: false,
                 showAvatarForEveryMessage: false,
-                scrollToBottom: false,
-                onPressAvatar: (ChatUser user) {
-                  print('OnPressAvatar: ${user.name}');
-                },
-                onLongPressAvatar: (ChatUser user) {
-                  print('OnLongPressAvatar: ${user.name}');
-                },
+                scrollToBottom: true,
                 inputMaxLines: 5,
                 messageContainerPadding: EdgeInsets.only(left: 5.0, right: 5.0),
                 alwaysShowSend: true,
@@ -91,7 +81,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     messages.add(ChatMessage(
                         text: reply.value,
                         createdAt: DateTime.now(),
-                        user: _users[_user]));
+                        user: _user));
 
                     messages = [...messages];
                   });
@@ -120,53 +110,6 @@ class _ChatScreenState extends State<ChatScreen> {
                 },
                 shouldShowLoadEarlier: false,
                 showTraillingBeforeSend: true,
-                trailing: <Widget>[
-                  IconButton(
-                    icon: Icon(Icons.photo),
-                    onPressed: () async {
-                      File result = await ImagePicker.pickImage(
-                        source: ImageSource.gallery,
-                        imageQuality: 80,
-                        maxHeight: 400,
-                        maxWidth: 400,
-                      );
-
-                      if (result != null) {
-                        final StorageReference storageRef =
-                            FirebaseStorage.instance.ref().child('chat_images');
-
-                        StorageUploadTask uploadTask = storageRef.putFile(
-                          result,
-                          StorageMetadata(
-                            contentType: 'image/jpg',
-                          ),
-                        );
-                        StorageTaskSnapshot download =
-                            await uploadTask.onComplete;
-
-                        String url = await download.ref.getDownloadURL();
-
-                        ChatMessage message =
-                            ChatMessage(text: '', user: _users[_user], image: url);
-
-                        var documentReference = _databaseReference
-                            .collection('chats')
-                            .document('${_party.uid}')
-                            .collection('messages')
-                            .document(DateTime.now()
-                                .millisecondsSinceEpoch
-                                .toString());
-
-                        _databaseReference.runTransaction((transaction) async {
-                          await transaction.set(
-                            documentReference,
-                            message.toJson(),
-                          );
-                        });
-                      }
-                    },
-                  )
-                ],
               );
             }
           }),
@@ -209,23 +152,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _getData() {
-    final ChatArguments args = ModalRoute.of(context).settings.arguments;
-    _party = args.party;
+    _party = ModalRoute.of(context).settings.arguments;
     User user = Provider.of<UsersProvider>(context, listen: false).activeUser;
-    _user = user.uid;
-    var usersList = args.users;
-    usersList.forEach((uid, user) {
-      _users.putIfAbsent(
-          uid,
-          () => ChatUser(
-              uid: user.uid, avatar: user.imageUrl, name: user.displayName));
-    });
+    _user =
+        ChatUser(uid: user.uid, avatar: user.imageUrl, name: user.displayName);
   }
-}
-
-class ChatArguments {
-  final Party party;
-  final Map<String, User> users;
-
-  ChatArguments(this.party, this.users);
 }

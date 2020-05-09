@@ -325,8 +325,8 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
             color: Colors.white,
           ),
           onPressed: () {
-            Navigator.of(context).pushNamed(ChatScreen.routeName,
-                arguments: ChatArguments(_party, _listUsers));
+            Navigator.of(context)
+                .pushNamed(ChatScreen.routeName, arguments: _party);
           },
         ));
   }
