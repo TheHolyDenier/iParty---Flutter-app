@@ -30,6 +30,7 @@ class _PartiesScreenState extends State<PartiesScreen> {
                 _master = value;
               });
             },
+            selectedColor: Theme.of(context).accentColor,
           ),
           SizedBox(
             width: 10.0,
@@ -42,6 +43,7 @@ class _PartiesScreenState extends State<PartiesScreen> {
                 _player = value;
               });
             },
+            selectedColor: Theme.of(context).accentColor,
           ),
         ],
       ),

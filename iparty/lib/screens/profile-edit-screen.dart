@@ -162,7 +162,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         onChanged: (_) {
           _checkErrorKm();
         },
-        decoration: new InputDecoration(
+        decoration: InputDecoration(
             labelText: 'Distancia máxima de partidas: ',
             suffix: Text('km'),
             errorText: _errorsKm == ErrorsKm.ok
@@ -178,7 +178,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   TextFormField _widgetBio() {
     return TextFormField(
       controller: _controllerBio,
-      decoration: InputDecoration(
+      decoration: const InputDecoration(
         icon: Icon(Icons.edit),
         labelText: 'Sobre ti',
 //                        suffix: Text('${_controllerBio.text.length ?? 0}/250'),

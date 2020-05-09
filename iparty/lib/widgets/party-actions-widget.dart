@@ -5,14 +5,15 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_fab_dialer/flutter_fab_dialer.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:iparty/models/user.dart';
-import 'package:iparty/widgets/delete-user-dialog.dart';
+import 'package:iparty/widgets/dialog-search-player.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 
 import '../models/party.dart';
 import '../screens/joined-parties-screen.dart';
-import '../widgets/dialog-sure-widget.dart';
-import '../widgets/profilepic-picker.dart';
+import './dialog-sure-widget.dart';
+import './profilepic-picker.dart';
+import './delete-user-dialog.dart';
+import '../models/user.dart';
 
 class PartyActionsWidget extends StatefulWidget {
   final Party party;
@@ -75,24 +76,32 @@ class _PartyActionsWidgetState extends State<PartyActionsWidget> {
         background,
         4.0,
         '',
-        () {},
+        _addPlayer,
         'Añadir jugador',
         Colors.white,
         Colors.black,
         true));
-      _fabMiniMenuItemList.add(FabMiniMenuItem.withText(
-          new Icon(Icons.not_interested),
-          background,
-          4.0,
-          '',
-          _deletePlayer,
-          'Eliminar jugador',
-          Colors.white,
-          Colors.black,
-          true));
+    _fabMiniMenuItemList.add(FabMiniMenuItem.withText(
+        new Icon(Icons.not_interested),
+        background,
+        4.0,
+        '',
+        _deletePlayer,
+        'Eliminar jugador',
+        Colors.white,
+        Colors.black,
+        true));
   }
 
-  void _addPlayer() {}
+  void _addPlayer() {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return DialogSearchPlayer(_party, _updateUsers, _listUsers);
+      },
+    );
+  }
 
   void _deletePlayer() {
     showDialog<void>(

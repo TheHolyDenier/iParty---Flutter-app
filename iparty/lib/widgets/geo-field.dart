@@ -39,7 +39,7 @@ class _AddressWidgetState extends State<AddressWidget> {
         TextFormField(
           enabled: false,
           controller: controllerGeo,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
               contentPadding: EdgeInsets.only(right: 45.0),
               icon: Icon(Icons.map),
               labelText: 'Base de operaciones'),

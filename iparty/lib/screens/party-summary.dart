@@ -320,7 +320,7 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
             );
           }
           var user = User.fromFirestore(snapshot.data);
-            _listUsers[user.uid] = user;
+          _listUsers[user.uid] = user;
           return _seeProfile(user);
         });
   }
@@ -391,13 +391,13 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
   }
 
   void _joinParty() {
-    _party.playersUID.add('${_provider.activeUser.uid}');
     Firestore.instance.collection('parties').document(_party.uid).updateData({
-      'playersUID': _party.playersUID,
+      'playersUID': FieldValue.arrayUnion(['${_provider.activeUser.uid}']),
     }).then((_) {
 //      Sets ok message
       setState(() {
         _statusJoin = StatusJoin.Ok;
+        _party.playersUID.add('${_provider.activeUser.uid}');
       });
     }).catchError((error) {
       // Not ok
@@ -422,7 +422,7 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
             );
           }
           var activeUser = User.fromFirestore(snapshot.data);
-            _listUsers[activeUser.uid] = activeUser;
+          _listUsers[activeUser.uid] = activeUser;
           return _ownerWidget(activeUser, context);
         });
   }

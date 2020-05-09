@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'avatar-circles.dart';
 import 'dialog-sure-widget.dart';
 
-import 'package:iparty/models/user.dart';
+import '../models/user.dart';
 
 class DialogDeleteUser extends StatefulWidget {
   final Map<String, User> listUsers;

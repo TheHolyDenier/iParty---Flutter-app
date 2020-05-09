@@ -185,7 +185,7 @@ class _NewTableScreenState extends State<NewTableScreen> {
             TextFormField(
               controller: _controllerGame,
               maxLength: 100,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   labelText: 'Juego', hintText: '¿A qué vais a jugar?'),
             ),
             TextFormField(
@@ -193,7 +193,7 @@ class _NewTableScreenState extends State<NewTableScreen> {
               maxLines: 5,
               minLines: 1,
               maxLength: 500,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   labelText: 'Descripción',
                   hintText: 'Cuenta a tus jugadores qué vais a hacer'),
             ),
@@ -224,7 +224,7 @@ class _NewTableScreenState extends State<NewTableScreen> {
                 return null;
               },
               maxLength: 100,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   labelText: 'Nombre de la mesa',
                   hintText: 'Servirá para que otros usuarios la reconozcan'),
             ),
@@ -250,7 +250,7 @@ class _NewTableScreenState extends State<NewTableScreen> {
                         return null;
                       },
                       maxLength: 250,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Medio de encuentro',
                         hintText:
                             'Ej. Telegram, Tabletop Simulator, link de la partida...',
