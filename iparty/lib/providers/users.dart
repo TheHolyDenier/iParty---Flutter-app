@@ -11,9 +11,13 @@ class UsersProvider with ChangeNotifier {
   User get activeUser => _activeUser;
 
   setActiveUser(User user) {
-  _activeUser = user;
-  notifyListeners();
-}
+    _activeUser = user;
+    notifyListeners();
+  }
+
+  notify() {
+    notifyListeners();
+  }
 
   updateActiveUser(
       {String bio = '',
@@ -24,18 +28,17 @@ class UsersProvider with ChangeNotifier {
       bool table = true,
       bool safe = true,
       bool online = true}) {
-    _activeUser.bio = (bio != null && bio.isNotEmpty) ? bio : '';
-    _activeUser.imageUrl = imageUrl ?? '';
+    _activeUser.bio = (bio != null && bio.isNotEmpty) ? bio : _activeUser.bio;
+    _activeUser.imageUrl = imageUrl ?? _activeUser.imageUrl;
     if (latLng != null) {
       _activeUser.latitude = latLng.latitude;
       _activeUser.longitude = latLng.longitude;
     }
-    _activeUser.km = km ?? 0.0;
-    _activeUser.rpg = rpg ?? true;
-    _activeUser.table = table ?? true;
-    _activeUser.safe = safe ?? true;
-    _activeUser.online = online ?? true;
+    _activeUser.km = km ?? _activeUser.km;
+    _activeUser.rpg = rpg ?? _activeUser.rpg;
+    _activeUser.table = table ?? _activeUser.table;
+    _activeUser.safe = safe ?? _activeUser.safe;
+    _activeUser.online = online ?? _activeUser.online;
     notifyListeners();
   }
-
 }

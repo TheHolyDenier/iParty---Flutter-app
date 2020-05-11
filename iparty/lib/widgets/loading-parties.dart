@@ -1,5 +1,7 @@
+import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:iparty/widgets/alert-widget.dart';
 import 'package:provider/provider.dart';
 
 import '../models/party.dart';
@@ -113,7 +115,12 @@ class _PartiesWidgetState extends State<PartiesWidget> {
                 Padding(
                   padding: const EdgeInsets.all(15.0),
                   child: Column(children: <Widget>[
-                    PartyDetailsWidget(party),
+                    Stack(
+                      children: <Widget>[
+                        PartyDetailsWidget(party),
+                        AlertWidget(party, _user.activeUser.uid),
+                      ],
+                    ),
                     SizedBox(height: 10.0),
                     if (party.summary != '')
                       Container(

@@ -22,6 +22,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final _databaseReference = Firestore.instance;
   Party _party;
   ChatUser _user;
+  UsersProvider _provider;
 
   List<ChatMessage> messages = List<ChatMessage>();
   var m = List<ChatMessage>();
@@ -58,8 +59,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _genChat(AsyncSnapshot snapshot) {
     List<DocumentSnapshot> items = snapshot.data.documents;
-    var messages =
-        items.map((i) => ChatMessage.fromJson(i.data)).toList();
+    var messages = items.map((i) => ChatMessage.fromJson(i.data)).toList();
     return DashChat(
       key: _chatViewKey,
       inverted: false,
@@ -67,14 +67,14 @@ class _ChatScreenState extends State<ChatScreen> {
       sendOnEnter: true,
       textInputAction: TextInputAction.send,
       user: _user,
-      inputDecoration: InputDecoration.collapsed(
-          hintText: 'Escribe tu mensaje aquí...'),
+      inputDecoration:
+          InputDecoration.collapsed(hintText: 'Escribe tu mensaje aquí...'),
       dateFormat: DateFormat('dd/MM/yyyy'),
       timeFormat: DateFormat('HH:mm'),
       messages: messages,
       showUserAvatar: false,
       showAvatarForEveryMessage: false,
-      scrollToBottom: true,
+      scrollToBottom: false,
       inputMaxLines: 5,
       messageContainerPadding: EdgeInsets.only(left: 5.0, right: 5.0),
       alwaysShowSend: true,
@@ -86,9 +86,7 @@ class _ChatScreenState extends State<ChatScreen> {
       onQuickReply: (Reply reply) {
         setState(() {
           messages.add(ChatMessage(
-              text: reply.value,
-              createdAt: DateTime.now(),
-              user: _user));
+              text: reply.value, createdAt: DateTime.now(), user: _user));
 
           messages = [...messages];
         });
@@ -96,8 +94,8 @@ class _ChatScreenState extends State<ChatScreen> {
         Timer(Duration(milliseconds: 300), () {
           _chatViewKey.currentState.scrollController
             ..animateTo(
-              _chatViewKey.currentState.scrollController.position
-                  .maxScrollExtent,
+              _chatViewKey
+                  .currentState.scrollController.position.maxScrollExtent,
               curve: Curves.easeOut,
               duration: const Duration(milliseconds: 300),
             );
@@ -159,22 +157,24 @@ class _ChatScreenState extends State<ChatScreen> {
   _genAlerts() {
     for (final user in _party.playersUID) {
       if (user != _user.uid) {
-        _databaseReference.collection('users').document(user).updateData({
-          'alerts': FieldValue.arrayUnion(['${_party.uid}'])
+        _databaseReference.collection('alerts').document(user).setData({
+          'player': user,
+          'parties': FieldValue.arrayUnion(['${_party.uid}'])
         });
       }
     }
   }
 
   _readMessages() {
-    _databaseReference.collection('users').document('${_user.uid}').updateData({
-      'alerts': FieldValue.arrayRemove(['${_party.uid}'])
+    _databaseReference.collection('alerts').document('${_user.uid}').setData({
+      'parties': FieldValue.arrayRemove(['${_party.uid}'])
     });
   }
 
   void _getData() {
     _party = ModalRoute.of(context).settings.arguments;
-    User user = Provider.of<UsersProvider>(context, listen: false).activeUser;
+    _provider = Provider.of<UsersProvider>(context, listen: true);
+    User user = _provider.activeUser;
     _user =
         ChatUser(uid: user.uid, avatar: user.imageUrl, name: user.displayName);
     _readMessages();
