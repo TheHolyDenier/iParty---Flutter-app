@@ -50,69 +50,73 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               );
             } else {
-              List<DocumentSnapshot> items = snapshot.data.documents;
-              var messages =
-                  items.map((i) => ChatMessage.fromJson(i.data)).toList();
-              return DashChat(
-                key: _chatViewKey,
-                inverted: false,
-                onSend: onSend,
-                sendOnEnter: true,
-                textInputAction: TextInputAction.send,
-                user: _user,
-                inputDecoration: InputDecoration.collapsed(
-                    hintText: 'Escribe tu mensaje aquí...'),
-                dateFormat: DateFormat('dd/MM/yyyy'),
-                timeFormat: DateFormat('HH:mm'),
-                messages: messages,
-                showUserAvatar: false,
-                showAvatarForEveryMessage: false,
-                scrollToBottom: true,
-                inputMaxLines: 5,
-                messageContainerPadding: EdgeInsets.only(left: 5.0, right: 5.0),
-                alwaysShowSend: true,
-                inputTextStyle: TextStyle(fontSize: 16.0),
-                inputContainerStyle: BoxDecoration(
-                  border: Border.all(width: 0.0),
-                  color: Colors.white,
-                ),
-                onQuickReply: (Reply reply) {
-                  setState(() {
-                    messages.add(ChatMessage(
-                        text: reply.value,
-                        createdAt: DateTime.now(),
-                        user: _user));
-
-                    messages = [...messages];
-                  });
-
-                  Timer(Duration(milliseconds: 300), () {
-                    _chatViewKey.currentState.scrollController
-                      ..animateTo(
-                        _chatViewKey.currentState.scrollController.position
-                            .maxScrollExtent,
-                        curve: Curves.easeOut,
-                        duration: const Duration(milliseconds: 300),
-                      );
-
-                    if (i == 0) {
-                      systemMessage();
-                      Timer(Duration(milliseconds: 600), () {
-                        systemMessage();
-                      });
-                    } else {
-                      systemMessage();
-                    }
-                  });
-                },
-                onLoadEarlier: () {
-                  print('cargando...');
-                },
-                shouldShowLoadEarlier: false,
-                showTraillingBeforeSend: true,
-              );
+              return _genChat(snapshot);
             }
           }),
+    );
+  }
+
+  Widget _genChat(AsyncSnapshot snapshot) {
+    List<DocumentSnapshot> items = snapshot.data.documents;
+    var messages =
+        items.map((i) => ChatMessage.fromJson(i.data)).toList();
+    return DashChat(
+      key: _chatViewKey,
+      inverted: false,
+      onSend: onSend,
+      sendOnEnter: true,
+      textInputAction: TextInputAction.send,
+      user: _user,
+      inputDecoration: InputDecoration.collapsed(
+          hintText: 'Escribe tu mensaje aquí...'),
+      dateFormat: DateFormat('dd/MM/yyyy'),
+      timeFormat: DateFormat('HH:mm'),
+      messages: messages,
+      showUserAvatar: false,
+      showAvatarForEveryMessage: false,
+      scrollToBottom: true,
+      inputMaxLines: 5,
+      messageContainerPadding: EdgeInsets.only(left: 5.0, right: 5.0),
+      alwaysShowSend: true,
+      inputTextStyle: TextStyle(fontSize: 16.0),
+      inputContainerStyle: BoxDecoration(
+        border: Border.all(width: 0.0),
+        color: Colors.white,
+      ),
+      onQuickReply: (Reply reply) {
+        setState(() {
+          messages.add(ChatMessage(
+              text: reply.value,
+              createdAt: DateTime.now(),
+              user: _user));
+
+          messages = [...messages];
+        });
+
+        Timer(Duration(milliseconds: 300), () {
+          _chatViewKey.currentState.scrollController
+            ..animateTo(
+              _chatViewKey.currentState.scrollController.position
+                  .maxScrollExtent,
+              curve: Curves.easeOut,
+              duration: const Duration(milliseconds: 300),
+            );
+
+          if (i == 0) {
+            systemMessage();
+            Timer(Duration(milliseconds: 600), () {
+              systemMessage();
+            });
+          } else {
+            systemMessage();
+          }
+        });
+      },
+      onLoadEarlier: () {
+        print('cargando...');
+      },
+      shouldShowLoadEarlier: false,
+      showTraillingBeforeSend: true,
     );
   }
 
@@ -149,6 +153,23 @@ class _ChatScreenState extends State<ChatScreen> {
         message.toJson(),
       );
     });
+    _genAlerts();
+  }
+
+  _genAlerts() {
+    for (final user in _party.playersUID) {
+      if (user != _user.uid) {
+        _databaseReference.collection('users').document(user).updateData({
+          'alerts': FieldValue.arrayUnion(['${_party.uid}'])
+        });
+      }
+    }
+  }
+
+  _readMessages() {
+    _databaseReference.collection('users').document('${_user.uid}').updateData({
+      'alerts': FieldValue.arrayRemove(['${_party.uid}'])
+    });
   }
 
   void _getData() {
@@ -156,5 +177,6 @@ class _ChatScreenState extends State<ChatScreen> {
     User user = Provider.of<UsersProvider>(context, listen: false).activeUser;
     _user =
         ChatUser(uid: user.uid, avatar: user.imageUrl, name: user.displayName);
+    _readMessages();
   }
 }

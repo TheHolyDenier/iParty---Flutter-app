@@ -6,20 +6,23 @@ class User {
   String imageUrl, bio;
   double latitude, longitude, km;
   bool rpg, table, safe, online;
+  List<dynamic> alerts;
 
-  User(
-      {@required this.uid,
-      @required this.email,
-      @required this.displayName,
-      this.imageUrl = '',
-      this.bio = '',
-      this.latitude = 40.974737,
-      this.longitude = -5.672455,
-      this.km = 0.0,
-      this.rpg = true,
-      this.table = true,
-      this.safe = true,
-      this.online = true});
+  User({
+    @required this.uid,
+    @required this.email,
+    @required this.displayName,
+    this.imageUrl = '',
+    this.bio = '',
+    this.latitude = 40.974737,
+    this.longitude = -5.672455,
+    this.km = 0.0,
+    this.rpg = true,
+    this.table = true,
+    this.safe = true,
+    this.online = true,
+    this.alerts,
+  });
 
   factory User.fromFirestore(DocumentSnapshot doc) {
     Map data = doc.data;
@@ -40,23 +43,7 @@ class User {
       table: data['table'] != null ? data['table'] == '1' : true,
       safe: data['safe'] != null ? data['safe'] == '1' : true,
       online: data['online'] != null ? data['online'] == '1' : true,
+      alerts: data['alerts'] ?? List(),
     );
-  }
-
-  toJson() {
-    return {
-      'uid': this.uid,
-      'email': this.email,
-      'displayName': this.displayName,
-      'imageUrl': this.imageUrl,
-      'bio': this.bio,
-      'latitude': this.latitude,
-      'longitude': this.longitude,
-      'km': this.km,
-      'rpg': this.rpg,
-      'table': this.table,
-      'safe': this.safe,
-      'online': this.online,
-    };
   }
 }
