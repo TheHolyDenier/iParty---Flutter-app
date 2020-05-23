@@ -134,10 +134,12 @@ class _PartyActionsWidgetState extends State<PartyActionsWidget> {
         );
       },
     ).then((result) {
-      setState(() {
-        _tempUrl = result ?? _tempUrl;
-      });
-      _savePic();
+      if (result != null && result.isEmpty) {
+        setState(() {
+          _tempUrl = result ?? _tempUrl;
+        });
+        _savePic();
+      }
     });
   }
 

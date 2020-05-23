@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:iparty/models/user.dart';
 import 'package:iparty/providers/users.dart';
+import 'package:iparty/screens/auth-screen.dart';
 import 'package:iparty/screens/joined-parties-screen.dart';
 import 'package:iparty/widgets/avatar-circles.dart';
 
@@ -105,6 +106,7 @@ class _MyDrawerState extends State<MyDrawer> {
             leading: Icon(Icons.power_settings_new),
             title: Text('Cerrar sesión'),
             onTap: () async {
+              Navigator.of(context).pushReplacementNamed(AuthScreen.routeName);
               await Provider.of<AuthService>(context, listen: false).logout();
             },
           )

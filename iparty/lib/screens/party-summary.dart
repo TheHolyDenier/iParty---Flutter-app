@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:iparty/widgets/alert-widget.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -18,6 +17,7 @@ import '../widgets/avatar-circles.dart';
 import '../widgets/party-cover.dart';
 import '../widgets/party-actions-widget.dart';
 import '../widgets/profile-widget.dart';
+import '../widgets/alert-widget.dart';
 
 class PartySummaryScreen extends StatefulWidget {
   static final routeName = '/party-summary';
@@ -311,30 +311,37 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
   }
 
   Widget _listTileWithChat(User owner, BuildContext context) {
-    return ListTile(
-        leading: _seeProfile(owner),
-        title: Text(
-          owner?.displayName,
-          style: Theme.of(context)
-              .textTheme
-              .headline6
-              .copyWith(color: Colors.white),
-        ),
-        trailing: Stack(
-          children: <Widget>[
-            IconButton(
-              icon: Icon(
-                Icons.chat,
-                color: Colors.white,
-              ),
-              onPressed: () {
-                Navigator.of(context)
-                    .pushNamed(ChatScreen.routeName, arguments: _party);
-              },
+    return Container(
+      width: double.infinity,
+      child: ListTile(
+          leading: _seeProfile(owner),
+          title: Text(
+            owner?.displayName,
+            style: Theme.of(context)
+                .textTheme
+                .headline6
+                .copyWith(color: Colors.white),
+          ),
+          trailing: Container(
+            width: 30.0,
+            height: 30.0,
+            child: Stack(
+              children: <Widget>[
+                IconButton(
+                  icon: Icon(
+                    Icons.chat,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    Navigator.of(context)
+                        .pushNamed(ChatScreen.routeName, arguments: _party);
+                  },
+                ),
+                AlertWidget(_party, _provider.activeUser.uid),
+              ],
             ),
-            AlertWidget(_party, _provider.activeUser.uid),
-          ],
-        ));
+          )),
+    );
   }
 
   Widget _getAllPlayers(String uid) {
@@ -450,9 +457,9 @@ class _PartySummaryScreenState extends State<PartySummaryScreen> {
               size: 25.0,
             );
           }
-          var activeUser = User.fromFirestore(snapshot.data);
-          _listUsers[activeUser.uid] = activeUser;
-          return _ownerWidget(activeUser, context);
+          var gameOwner = User.fromFirestore(snapshot.data);
+          _listUsers[gameOwner.uid] = gameOwner;
+          return _ownerWidget(gameOwner, context);
         });
   }
 }

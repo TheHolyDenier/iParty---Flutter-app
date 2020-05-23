@@ -11,6 +11,7 @@ import '../providers/logged-user.dart';
 
 class AuthScreen extends StatefulWidget {
   static final routeName = '/auth-screen';
+
   @override
   _AuthScreenState createState() => _AuthScreenState();
 }
@@ -126,10 +127,11 @@ class _AuthScreenState extends State<AuthScreen> {
                               'email': _email,
                               'displayName': _displayName
                             }).then((_) async {
-                              await Provider.of<
-                                      AuthService>(context, listen: false)
-                                  .loginUser(email: _email, password: _password);
-                                  Navigator.of(context).pop(); 
+                              await Provider.of<AuthService>(context,
+                                      listen: false)
+                                  .loginUser(
+                                      email: _email, password: _password);
+                              Navigator.of(context).pop();
                             });
                           });
                         } on AuthException catch (error) {
@@ -321,7 +323,8 @@ class _AuthScreenState extends State<AuthScreen> {
           ),
           maxLines: 1,
           autofocus: false,
-          obscureText: _obscureText, //La contraseña se muestra oculta
+          obscureText: _obscureText,
+          //La contraseña se muestra oculta
           validator: (value) {
             var error;
             if (value.isEmpty)
@@ -378,6 +381,26 @@ class _AuthScreenState extends State<AuthScreen> {
             )),
             Positioned(
               child: Container(
+                child: Center(
+                  child: Container(
+                    child: Center(
+                      child: Text(
+                        'iParty',
+                        style: Theme.of(context)
+                            .textTheme
+                            .headline1
+                            .copyWith(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              height: 100,
+              left: 100,
+              top: 0,
+            ),
+            Positioned(
+              child: Container(
                 width: MediaQuery.of(context).size.width,
                 child: Column(
                   children: <Widget>[
@@ -391,22 +414,6 @@ class _AuthScreenState extends State<AuthScreen> {
                   ],
                 ),
               ),
-            ),
-            Positioned(
-              child: Container(
-                child: Center(
-                  child: Container(
-                    child: Center(
-                      child: Text(
-                        'iParty',
-                        style: Theme.of(context).textTheme.headline1,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              height: 50,
-              left: 100,
             ),
             Positioned(
               child: Container(
